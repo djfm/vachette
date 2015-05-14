@@ -35,13 +35,17 @@ var PlayGameView = View.extend({
         var that = this;
         serverNotifications.socket.on('game ' + this.gameId, function (data) {
             if (that.gameId === data.gameId) {
-                that.updateGameStatus(data);
+                if (data.type === 'status') {
+                    that.updateGameStatus(data);
+                } else if (data.type === 'cards') {
+                    that.setCards(data.cards);
+                }
             }
         });
 
         this.joinGame();
     },
-    joinGame: function joinGame () {        
+    joinGame: function joinGame () {
         serverNotifications.socket.emit('join', {
             gameId: this.gameId,
             playerId: this.playerId
@@ -49,6 +53,14 @@ var PlayGameView = View.extend({
     },
     updateGameStatus: function updateGameStatus (gameData) {
         this.$('.playerCount').html(gameData.playerCount);
+        this.$('.status').html(gameData.statusString);
+    },
+    setCards: function setCards (cards) {
+        this.cards = cards;
+        this.$('.hand-of-cards').html(
+            require('./templates/hand-of-cards.jade')({
+                cards: this.cards
+        }));
     }
 });
 

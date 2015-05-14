@@ -14,11 +14,7 @@ app.use(express.static('public'));
 
 io.on('connection', function (socket) {
     socket.on('join', function (data) {
-        game.find(data.gameId).addPlayer(data.playerId);
-
-        socket.on('disconnect', function () {
-            game.playerDisconnected(data.playerId);
-        });
+        game.find(data.gameId).addPlayer(data.playerId, socket);
     });
 });
 

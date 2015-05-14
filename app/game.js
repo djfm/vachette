@@ -1,5 +1,36 @@
 var _ = require('underscore');
 
+function generateDeckOfCards (smallestCard, highestCard) {
+    var deck = [];
+
+    for (var i = smallestCard; i <= highestCard; ++i) {
+        var vachettes = 1;
+
+        if (i % 5 === 0) {
+            vachettes = 2;
+        }
+
+        if (i % 10 === 0) {
+            vachettes = 3;
+        }
+
+        if (i % 11 === 0) {
+            vachettes = 5;
+        }
+
+        if (i === 55) {
+            vachettes = 7;
+        }
+
+        deck.push({
+            number: i,
+            vachettes: vachettes
+        });
+    }
+
+    return _.shuffle(deck);
+}
+
 function Game (id, io) {
     this.id = id;
 
@@ -7,29 +38,77 @@ function Game (id, io) {
     this.players = {};
     this.playerCount = 0;
 
+    this.statusString = 'Waiting for more players...';
+    this.status = 'waiting';
+
+    this.smallestCard = 1;
+    this.highestCard = 104;
+    this.cardsPerPlayer = 10;
+
+
     this.sendStatus = function sendStatus () {
         io.emit('game ' + this.id, {
+            type: 'status',
             gameId: this.id,
-            playerCount: this.playerCount
+            playerCount: this.playerCount,
+            statusString: this.statusString
         });
     };
 
-    this.addPlayer = function (playerId) {
-        if (!this.players[playerId]) {
-            this.players[playerId] = {};
+    this.addPlayer = function (playerId, socket) {
+        if (!this.players[playerId] && this.status === 'waiting') {
+            this.players[playerId] = socket;
+
+            socket.on('disconnect', this.playerDisconnected.bind(this, playerId));
+
             ++this.playerCount;
             this.sendStatus();
+
+            if (this.playerCount >= this.minPlayers) {
+                this.startGame();
+            }
         }
     };
 
     this.playerDisconnected = function (playerId) {
-        if (this.players[playerId]) {
-            delete this.players[playerId];
-            --this.playerCount;
-            this.sendStatus();
+        delete this.players[playerId];
+        --this.playerCount;
+
+        if (this.playerCount < this.minPlayers) {
+            this.status = 'waiting';
         }
+
+        this.sendStatus();
     };
 
+    this.startGame = function startGame () {
+        this.status = 'playing';
+        this.statusString = 'Game on!';
+        this.sendStatus();
+
+        this.deal();
+    };
+
+    this.deal = function deal () {
+
+        var deck = generateDeckOfCards(this.smallestCard, this.highestCard);
+
+        _.each(this.players, function (player) {
+            this.dealToPlayer(player, deck);
+        }, this);
+    };
+
+    this.dealToPlayer = function dealToPlayer (socket, deck) {
+        var cards = deck.splice(-this.cardsPerPlayer, this.cardsPerPlayer).sort(function (a, b) {
+            return a.number - b.number;
+        });
+
+        socket.emit('game ' + this.id, {
+            type: 'cards',
+            gameId: this.id,
+            cards: cards
+        });
+    };
 }
 
 var nextGameId = 0;
@@ -45,10 +124,5 @@ module.exports = {
     },
     find: function findGame (id) {
         return games[id];
-    },
-    playerDisconnected: function playerDisconnected (playerId) {
-        _.each(games, function (game) {
-            game.playerDisconnected(playerId);
-        });
     }
 };
