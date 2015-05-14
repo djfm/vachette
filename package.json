@@ -1,0 +1,25 @@
+{
+  "name": "vachette",
+  "version": "0.0.0",
+  "description": "6 Nimmt / Take 5 game in the browser",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.12.3"
+  },
+  "devDependencies": {
+    "bootstrap": "^3.3.4",
+    "browserify": "^10.2.0",
+    "grunt": "^0.4.5",
+    "grunt-browserify": "^3.8.0",
+    "grunt-contrib-cssmin": "^0.12.3",
+    "grunt-contrib-stylus": "^0.21.0",
+    "grunt-contrib-watch": "^0.6.1",
+    "jade": "^1.9.2",
+    "jadeify": "^4.3.0"
+  }
+}
