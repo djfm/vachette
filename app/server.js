@@ -1,9 +1,39 @@
-var express = require('express');
+var express     = require('express'),
+    http        = require('http'),
+    socketIo    = require('socket.io'),
+    uid         = require('uid')
+;
 
-var app = express();
+var game        = require('./game');
+
+var app     = express();
+var server  = http.Server(app);
+var io      = socketIo(server);
 
 app.use(express.static('public'));
 
-app.listen(process.env.PORT || process.argv[2] || 3000, function () {
+io.on('connection', function (socket) {
+    socket.on('join', function (data) {
+        game.find(data.gameId).addPlayer(data.playerId);
+
+        socket.on('disconnect', function () {
+            game.playerDisconnected(data.playerId);
+        });
+    });
+});
+
+app.post('/new-game', function (req, res) {
+    res.send({
+        id: game.create(io).id
+    });
+});
+
+app.post('/new-player', function (req, res) {
+    res.send({
+        id: uid()
+    });
+});
+
+server.listen(process.env.PORT || process.argv[2] || 3000, function () {
     console.log('Ready to roll!');
 });

@@ -4,12 +4,19 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-stylus');
     grunt.loadNpmTasks('grunt-contrib-cssmin');
 
+    var javascriptsToCompile = [
+        'app/client.js',
+        'app/server-notifications.js',
+        'app/views/**/*.js',
+        'app/views/templates/**/*.jade'
+    ];
+
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
         browserify: {
             dist: {
                 files: {
-                    'public/client.js': ['app/client.js', 'templates/**/*.jade'],
+                    'public/client.js': javascriptsToCompile,
                 },
                 options: {
                     transform: ['jadeify']
@@ -32,13 +39,11 @@ module.exports = function (grunt) {
         },
         watch: {
             scripts: {
-                files: ['app/**/*.js', 'lib/**/*.js', 'css/**/*', 'templates/**/*.jade'],
+                files: javascriptsToCompile.concat(['css/**/*']),
                 tasks: ['default']
             }
         }
     });
-
-
 
     grunt.registerTask('default', [
         'browserify',
