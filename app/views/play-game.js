@@ -59,7 +59,8 @@ var PlayGameView = View.extend({
         this.cards = cards;
         this.$('.hand-of-cards').html(
             require('./templates/hand-of-cards.jade')({
-                cards: this.cards
+                cards: this.cards,
+                openCardTemplate: require('./templates/open-card.jade')
         }));
     }
 });

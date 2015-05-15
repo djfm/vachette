@@ -1,13 +1,3 @@
 .cards-container
     each card in cards
-        .card
-            .rows
-                .top
-                    .left= card.number
-                    .right= card.number
-                .middle
-                    .center
-                        span.vachette= card.vachettes
-                .bottom
-                    .left= card.number
-                    .right= card.number
+        span !{openCardTemplate({card: card})}
