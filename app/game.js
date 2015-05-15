@@ -57,7 +57,9 @@ function Game (id, io) {
 
     this.addPlayer = function (playerId, socket) {
         if (!this.players[playerId] && this.status === 'waiting') {
-            this.players[playerId] = socket;
+            this.players[playerId] = {
+                socket: socket
+            };
 
             socket.on('disconnect', this.playerDisconnected.bind(this, playerId));
 
@@ -98,15 +100,15 @@ function Game (id, io) {
         }, this);
     };
 
-    this.dealToPlayer = function dealToPlayer (socket, deck) {
-        var cards = deck.splice(-this.cardsPerPlayer, this.cardsPerPlayer).sort(function (a, b) {
+    this.dealToPlayer = function dealToPlayer (player, deck) {
+        player.cards = deck.splice(-this.cardsPerPlayer, this.cardsPerPlayer).sort(function (a, b) {
             return a.number - b.number;
         });
 
-        socket.emit('game ' + this.id, {
+        player.socket.emit('game ' + this.id, {
             type: 'cards',
             gameId: this.id,
-            cards: cards
+            cards: player.cards
         });
     };
 }
