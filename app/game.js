@@ -230,12 +230,19 @@ var games = {};
 
 module.exports = {
     Game: Game,
-    create: function createGame (io) {
-        var id = nextGameId++;
+    create: function createGame (io, id) {
+        if (id === undefined) {
+            id = nextGameId++;
+        } else {
+            nextGameId = Math.max(nextGameId, id) + 1;
+        }
         games[id] = new Game(id, io);
         return games[id];
     },
     find: function findGame (id) {
         return games[id];
+    },
+    findOrCreate: function findOrCreateGame (id, io) {
+        return this.find(id) || this.create(io, id);
     }
 };
