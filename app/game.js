@@ -253,6 +253,9 @@ function Game (id, io) {
             });
 
             this.whoseTurn = (this.whoseTurn + 1) % this.playerList.length;
+            this.tellPlayer(playerId, {
+                type: 'ok move'
+            });
         } else {
             this.tellPlayer(playerId, {
                 type: 'splash',

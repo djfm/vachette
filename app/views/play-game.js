@@ -54,6 +54,8 @@ var PlayGameView = View.extend({
                     that.setPublicCards(data.cards);
                 } else if (data.type === 'splash') {
                     that.splash(data.message);
+                } else if (data.type === 'ok move') {
+                    that.consecutiveErrorCount = 0;
                 }
             }
         });
@@ -99,6 +101,13 @@ var PlayGameView = View.extend({
         }));
     },
     splash: function splash (message) {
+
+        this.consecutiveErrorCount = (this.consecutiveErrorCount || 0) + 1;
+
+        if (this.consecutiveErrorCount >= 3) {
+            message = 'Are you dumb?';
+        }
+
         this.$('.splash-message').html(message);
 
         var elem = this.$('.splash')
