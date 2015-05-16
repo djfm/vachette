@@ -13,6 +13,8 @@ var PlayGameView = View.extend({
     events: {
         'dragstart .hand-of-cards-container': 'onOpenCardDragStart',
         'dragover .card-slot': 'onDragOverCardSlot',
+        'dragenter .card-slot': 'onDragEnterCardSlot',
+        'dragleave .card-slot': 'onDragLeaveCardSlot',
         'drop .card-slot': 'onDropOverCardSlot'
     },
     setup: function playGameViewSetup (gameId, playerId) {
@@ -92,6 +94,16 @@ var PlayGameView = View.extend({
                 rows: cardsForTemplate,
                 openCardTemplate: require('./templates/open-card.jade')
         }));
+    },
+    onDragEnterCardSlot: function onDragEnterCardSlot (e) {
+        this._dragCounter = (this._dragCounter || 0) + 1;
+        this.$(e.target).closest('.card-slot').addClass('dragged-over');
+    },
+    onDragLeaveCardSlot: function onDragLeaveCardSlot (e) {
+        this._dragCounter = (this._dragCounter || 1) - 1;
+        if (this._dragCounter === 0) {
+            this.$(e.target).closest('.card-slot').removeClass('dragged-over');
+        }
     },
     onDragOverCardSlot: function onDragOverCardSlot (e) {
         e.preventDefault();
