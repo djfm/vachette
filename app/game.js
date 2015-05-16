@@ -45,6 +45,7 @@ function Game (id, io) {
     this.highestCard = 104;
     this.cardsPerPlayer = 10;
     this.publicCardsCount = 4;
+    this.maxRowLength = 5;
 
     this.publicCards = [];
 
@@ -122,15 +123,74 @@ function Game (id, io) {
             return a.number - b.number;
         });
 
+        this.updatePlayerCards(player);
+    };
+
+    this.updatePlayerCards = function updatePlayerCards (player) {
         player.socket.emit('game ' + this.id, {
-            type: 'cards',
+            type: 'privateCards',
             gameId: this.id,
             cards: player.cards
         });
     };
 
     this.makeMove = function makeMove (playerId, move) {
-        this.publicCards[move.rowNumber].push(move.card);
+        this.notifyMove(this.tryMove(playerId, move));
+    };
+
+    this.getRowHighestNumber = function getRowHighestNumber (rowNumber) {
+        return this.publicCards[rowNumber][this.publicCards[rowNumber].length - 1].number;
+    };
+
+    this.tryMove = function (playerId, move) {
+        var player = this.players[playerId];
+        player.ate = player.ate || [];
+
+        var ok = !!_.find(player.cards, function (card) {
+            return card.number === move.card.number;
+        });
+
+        var playerDelta;
+
+        if (ok) {
+            playerDelta = move.card.number - this.getRowHighestNumber(move.rowNumber);
+            for (var rowNumber = 0; rowNumber < this.publicCards.length; ++rowNumber) {
+                if (rowNumber === move.rowNumber) {
+                    continue;
+                }
+                var rowDelta = move.card.number - this.getRowHighestNumber(rowNumber);
+                if (rowDelta > 0 && rowDelta < playerDelta) {
+                    ok = false;
+                    break;
+                } else if (playerDelta < 0 && rowDelta > 0) {
+                    ok = false;
+                    break;
+                }
+            }
+        }
+
+        if (ok) {
+            if (playerDelta > 0 && this.publicCards[move.rowNumber].length < this.maxRowLength) {
+                this.publicCards[move.rowNumber].push(move.card);
+            } else {
+                player.ate = player.ate.concat(this.publicCards[move.rowNumber]);
+                this.publicCards[move.rowNumber] = [move.card];
+            }
+
+            player.cards = _.reject(player.cards, function (card) {
+                return card.number === move.card.number;
+            });
+        }
+
+        return {
+            ok: ok,
+            player: player,
+            publicCards: this.publicCards
+        };
+    };
+
+    this.notifyMove = function (moveResult) {
+        this.updatePlayerCards(moveResult.player);
         this.broadcast({
             type: 'publicCards',
             cards: this.publicCards

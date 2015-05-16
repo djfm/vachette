@@ -132,7 +132,7 @@ var PlayGameView = View.extend({
             if (that.gameId === data.gameId) {
                 if (data.type === 'status') {
                     that.updateGameStatus(data);
-                } else if (data.type === 'cards') {
+                } else if (data.type === 'privateCards') {
                     that.setPrivateCards(data.cards);
                 } else if (data.type === 'publicCards') {
                     that.setPublicCards(data.cards);
@@ -196,23 +196,14 @@ var PlayGameView = View.extend({
         var card = JSON.parse(e.dataTransfer.getData("card"));
         var slot = this.$(e.target).closest('.card-slot');
         var rowNumber = slot.data('row-number');
-        var that = this;
-
-        this.checkIfMoveIsAllowed(card, rowNumber).then(function (yes) {
-            if (yes) {
-                that.makeMove(card, rowNumber);
-            }
-        });
-
         this.$('.card-slot.dragged-over').removeClass('dragged-over');
         this._dragCounter = 0;
+
+        this.makeMove(card, rowNumber);
     },
     onOpenCardDragStart: function onOpenCardDragStart (e) {
         var card = this.$(e.target).find('.open-card').attr('data-card');
         e.dataTransfer.setData('card', card);
-    },
-    checkIfMoveIsAllowed: function checkIfMoveIsAllowed (card, rowNumber) {
-        return q(true);
     },
     makeMove: function makeMove (card, rowNumber) {
         serverNotifications.socket.emit('move', {
@@ -223,14 +214,6 @@ var PlayGameView = View.extend({
                 rowNumber: rowNumber
             }
         });
-
-        this.publicCards[rowNumber].push(card);
-        this.privateCards = _.reject(this.privateCards, function (c) {
-            return c.number === card.number;
-        });
-
-        this.drawPublicCards();
-        this.drawPrivateCards();
     }
 });
 
