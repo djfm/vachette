@@ -85,3 +85,16 @@ body
     span
         &:not(first-child)
             margin-left 5px
+.splash
+    position absolute
+    background-color rgba(255,0,0,0.5)
+    visibility hidden
+    border-radius 10px
+    td
+        text-align center
+        font-size 3em
+    &.fade
+        opacity 1
+        transition: opacity 0.75s ease-in-out;
+        -moz-transition: opacity 0.75s ease-in-out;
+        -webkit-transition: opacity 0.75s ease-in-out;

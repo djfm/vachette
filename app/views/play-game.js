@@ -52,6 +52,8 @@ var PlayGameView = View.extend({
                     that.setPrivateCards(data.cards);
                 } else if (data.type === 'publicCards') {
                     that.setPublicCards(data.cards);
+                } else if (data.type === 'splash') {
+                    that.splash(data.message);
                 }
             }
         });
@@ -63,21 +65,51 @@ var PlayGameView = View.extend({
         });
     },
     updateGameStatus: function updateGameStatus (gameData) {
-        this.$('.playerCount').html(gameData.playerCount);
+        var playerCountString;
+
+        if (gameData.playerCount > 1) {
+            playerCountString = 'There are ' + gameData.playerCount + ' players connected.';
+        } else {
+            playerCountString = 'You\'re the only connected player...';
+        }
+
+        var myTurn = false;
+
+        var players = _.map(gameData.players, function (player) {
+            player.vachettes = _.reduce(player.ate, function (total, card) {
+                return total + card.vachettes;
+            }, 0);
+
+            if (player.id === this.playerId) {
+                player.you = true;
+                if (player.theirTurn) {
+                    myTurn = true;
+                }
+            }
+
+            return player;
+        }, this);
+
+        this.$('.my-turn').css('visibility', myTurn ? 'visible' : 'hidden');
+
+        this.$('.playerCount').html(playerCountString);
         this.$('.status').html(gameData.statusString);
         this.$('.players').html(require('./templates/players.jade')({
-            players: _.map(gameData.players, function (player) {
-                player.vachettes = _.reduce(player.ate, function (total, card) {
-                    return total + card.vachettes;
-                }, 0);
-
-                if (player.id === this.playerId) {
-                    player.you = true;
-                }
-
-                return player;
-            }, this)
+            players: players
         }));
+    },
+    splash: function splash (message) {
+        this.$('.splash-message').html(message);
+
+        var elem = this.$('.splash')
+        .addClass('fade')
+        .width(this.$('.container').width())
+        .height(this.$('.public-area').height())
+        .css('visibility', 'visible')
+        .css('opacity', 0)
+        .bind('transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd', function () {
+            elem.css('visibility', 'hidden').css('opacity', 1);
+        });
     },
     setPrivateCards: function setPrivateCards (cards) {
         this.privateCards = cards;

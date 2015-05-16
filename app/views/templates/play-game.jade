@@ -1,7 +1,5 @@
 .container
-    p
-        span Players connected:&nbsp;
-        span.playerCount 1
+    span.playerCount
     
     .players
     
@@ -9,9 +7,16 @@
         
     p.status
     
+    p.my-turn(style="visibility: hidden")
+        span.label.label-success Your Turn
+    
     hr
-
-    .public-cards
+    
+    .public-area
+        table.splash
+            tr
+                td.splash-message
+        .public-cards
 
     hr
 

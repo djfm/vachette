@@ -43,6 +43,16 @@ function Game (id, io) {
     this.statusString = 'Waiting for more players...';
     this.status = 'waiting';
 
+    /**
+     * Game statuses
+     *
+     *	waiting
+     *		=> ready (when this.minPlayers is reached)
+     *	ready
+     *		=> playing (when first move is made)
+     *
+     */
+
     this.smallestCard = 1;
     this.highestCard = 104;
     this.cardsPerPlayer = 10;
@@ -51,10 +61,44 @@ function Game (id, io) {
 
     this.publicCards = [];
 
+    this.reset = function reset () {
+        this.whoseTurn = 0;
+        this.status = 'waiting';
+
+        _.each(this.players, function (player) {
+            player.ate = [];
+        });
+
+        this.deck = generateDeckOfCards(this.smallestCard, this.highestCard);
+
+        this.publicCards = _.map(
+            this.deck.splice(-this.publicCardsCount, this.publicCardsCount),
+            function (card) {
+                    return [card];
+        });
+
+        this.broadcast({
+            type: 'publicCards',
+            cards: this.publicCards
+        });
+
+        _.each(this.players, function (player) {
+            this.dealToPlayer(player, this.deck);
+        }, this);
+    };
+
     this.broadcast = function broadcast (message) {
         io.emit('game ' + this.id, _.defaults(message, {
             gameId: this.id
         }));
+    };
+
+    this.tellPlayer = function tellPlayer (playerId, message) {
+        if (this.players[playerId].socket) {
+            this.players[playerId].socket.emit('game ' + this.id, _.defaults(message, {
+                gameId: this.id
+            }));
+        }
     };
 
     this.sendStatus = function sendStatus () {
@@ -71,7 +115,7 @@ function Game (id, io) {
     };
 
     this.addPlayer = function (playerId, socket) {
-        if (!this.players[playerId] && this.status === 'waiting') {
+        if (!this.players[playerId] && this.status !== 'playing') {
             this.players[playerId] = {
                 socket: socket,
                 name: playerId,
@@ -81,17 +125,32 @@ function Game (id, io) {
 
             this.playerList.push(this.players[playerId]);
 
+            this.dealToPlayer(this.players[playerId], this.deck);
+
             if (socket) {
                 socket.on('disconnect', this.playerDisconnected.bind(this, playerId));
             }
 
             ++this.playerCount;
-            this.sendStatus();
+
+            this.tellPlayer(playerId, {
+                type: 'publicCards',
+                cards: this.publicCards
+            });
 
             if (this.playerCount >= this.minPlayers) {
-                this.startGame();
+                this.status = 'ready';
+                this.statusString = 'Ready when you are! (other players may join until first move is made)';
             }
+
+            this.sendStatus();
         }
+    };
+
+    this.startGame = function startGame () {
+        this.status = 'playing';
+        this.statusString = 'Game on!';
+        this.sendStatus();
     };
 
     this.playerDisconnected = function (playerId) {
@@ -106,37 +165,10 @@ function Game (id, io) {
         this.whoseTurn = this.whoseTurn % this.playerList.length;
 
         if (this.playerCount < this.minPlayers) {
-            this.status = 'waiting';
+            this.reset();
         }
 
         this.sendStatus();
-    };
-
-    this.startGame = function startGame () {
-        this.status = 'playing';
-        this.whoseTurn = 0;
-        this.statusString = 'Game on!';
-        this.sendStatus();
-        this.deal();
-    };
-
-    this.deal = function deal () {
-        var deck = generateDeckOfCards(this.smallestCard, this.highestCard);
-
-        _.each(this.players, function (player) {
-            this.dealToPlayer(player, deck);
-        }, this);
-
-        this.publicCards = _.map(
-            deck.splice(-this.publicCardsCount, this.publicCardsCount),
-            function (card) {
-                    return [card];
-        });
-
-        this.broadcast({
-            type: 'publicCards',
-            cards: this.publicCards
-        });
     };
 
     this.dealToPlayer = function dealToPlayer (player, deck) {
@@ -156,8 +188,18 @@ function Game (id, io) {
     };
 
     this.makeMove = function makeMove (playerId, move) {
+
+        if (this.status === 'ready') {
+            this.startGame();
+        }
+
         if (this.playerList[this.whoseTurn].id === playerId) {
             this.notifyMove(this.tryMove(playerId, move));
+        } else {
+            this.tellPlayer(playerId, {
+                type: 'splash',
+                message: 'Not your turn!'
+            });
         }
     };
 
@@ -175,6 +217,8 @@ function Game (id, io) {
 
         var playerDelta;
 
+        var errorMessage = 'Nope!';
+
         if (ok) {
             playerDelta = move.card.number - this.getRowHighestNumber(move.rowNumber);
             for (var rowNumber = 0; rowNumber < this.publicCards.length; ++rowNumber) {
@@ -183,13 +227,17 @@ function Game (id, io) {
                 }
                 var rowDelta = move.card.number - this.getRowHighestNumber(rowNumber);
                 if (rowDelta > 0 && rowDelta < playerDelta) {
+                    errorMessage = 'There is another card that is closer!';
                     ok = false;
                     break;
                 } else if (playerDelta < 0 && rowDelta > 0) {
+                    errorMessage = 'Not small enough to take this!';
                     ok = false;
                     break;
                 }
             }
+        } else {
+            errorMessage = 'Cheating?';
         }
 
         if (ok) {
@@ -205,6 +253,11 @@ function Game (id, io) {
             });
 
             this.whoseTurn = (this.whoseTurn + 1) % this.playerList.length;
+        } else {
+            this.tellPlayer(playerId, {
+                type: 'splash',
+                message: errorMessage
+            });
         }
 
         return {
@@ -237,6 +290,9 @@ module.exports = {
             nextGameId = Math.max(nextGameId, id) + 1;
         }
         games[id] = new Game(id, io);
+
+        games[id].reset();
+
         return games[id];
     },
     find: function findGame (id) {
