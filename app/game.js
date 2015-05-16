@@ -44,12 +44,17 @@ function Game (id, io) {
     this.smallestCard = 1;
     this.highestCard = 104;
     this.cardsPerPlayer = 10;
+    this.publicCardsCount = 4;
 
+    this.broadcast = function broadcast (message) {
+        io.emit('game ' + this.id, _.defaults(message, {
+            gameId: this.id
+        }));
+    };
 
     this.sendStatus = function sendStatus () {
-        io.emit('game ' + this.id, {
+        this.broadcast({
             type: 'status',
-            gameId: this.id,
             playerCount: this.playerCount,
             statusString: this.statusString
         });
@@ -92,12 +97,22 @@ function Game (id, io) {
     };
 
     this.deal = function deal () {
-
         var deck = generateDeckOfCards(this.smallestCard, this.highestCard);
 
         _.each(this.players, function (player) {
             this.dealToPlayer(player, deck);
         }, this);
+
+        this.publicCards = _.map(
+            deck.splice(-this.publicCardsCount, this.publicCardsCount),
+            function (card) {
+                    return [card];
+        });
+
+        this.broadcast({
+            type: 'publicCards',
+            cards: this.publicCards
+        });
     };
 
     this.dealToPlayer = function dealToPlayer (player, deck) {

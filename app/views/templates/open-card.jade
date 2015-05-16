@@ -1,11 +1,21 @@
 .open-card(class="vachettes_#{card.vachettes}")
-    .rows
-        .top
-            .left= card.number
-            .right= card.number
-        .middle
-            .center
-                span.vachette= card.vachettes
-        .bottom
-            .left= card.number
-            .right= card.number
+    table
+        tr
+            td
+                .small-number= card.number
+            td
+                .vachettes= card.vachettes
+            td
+                .small-number= card.number
+        tr
+            td &nbsp;
+            td
+                .big-number= card.number
+            td &nbsp;
+        tr
+            td
+                .small-number= card.number
+            td
+                .vachettes= card.vachettes
+            td
+                .small-number= card.number

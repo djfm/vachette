@@ -1,6 +1,7 @@
 var View    = require('./view'),
     $       = require('jquery'),
-    q       = require('q')
+    q       = require('q'),
+    _       = require('underscore')
 ;
 
 var serverNotifications = require('../server-notifications');
@@ -31,19 +32,22 @@ var PlayGameView = View.extend({
     },
     afterRender: function playGameViewAfterRender () {
         $('.currentGame').html('<a href="' + this.url + '">current game</a>');
-
+        this.setupServerListeners();
+        this.joinGame();
+    },
+    setupServerListeners: function setupServerListeners () {
         var that = this;
         serverNotifications.socket.on('game ' + this.gameId, function (data) {
             if (that.gameId === data.gameId) {
                 if (data.type === 'status') {
                     that.updateGameStatus(data);
                 } else if (data.type === 'cards') {
-                    that.setCards(data.cards);
+                    that.setPrivateCards(data.cards);
+                } else if (data.type === 'publicCards') {
+                    that.setPublicCards(data.cards);
                 }
             }
         });
-
-        this.joinGame();
     },
     joinGame: function joinGame () {
         serverNotifications.socket.emit('join', {
@@ -55,11 +59,28 @@ var PlayGameView = View.extend({
         this.$('.playerCount').html(gameData.playerCount);
         this.$('.status').html(gameData.statusString);
     },
-    setCards: function setCards (cards) {
-        this.cards = cards;
+    setPrivateCards: function setPrivateCards (cards) {
+        this.privateCards = cards;
         this.$('.hand-of-cards').html(
             require('./templates/hand-of-cards.jade')({
-                cards: this.cards,
+                cards: this.privateCards,
+                openCardTemplate: require('./templates/open-card.jade')
+        }));
+
+    },
+    setPublicCards: function setPublicCards (cards) {
+        this.publicCards = cards;
+
+        var cardsForTemplate = _.map(this.publicCards, function (row) {
+            return {
+                cards: row,
+                full: row.length >= 5
+            };
+        });
+
+        this.$('.public-cards').html(
+            require('./templates/public-cards.jade')({
+                rows: cardsForTemplate,
                 openCardTemplate: require('./templates/open-card.jade')
         }));
     }

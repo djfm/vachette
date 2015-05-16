@@ -1,0 +1,8 @@
+each row in rows
+    div
+        each card in row.cards
+            .inline !{openCardTemplate({card: card})}
+        .inline
+            .card-slot
+                .inside
+                    .contents +
