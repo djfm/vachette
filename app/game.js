@@ -46,6 +46,8 @@ function Game (id, io) {
     this.cardsPerPlayer = 10;
     this.publicCardsCount = 4;
 
+    this.publicCards = [];
+
     this.broadcast = function broadcast (message) {
         io.emit('game ' + this.id, _.defaults(message, {
             gameId: this.id
@@ -124,6 +126,14 @@ function Game (id, io) {
             type: 'cards',
             gameId: this.id,
             cards: player.cards
+        });
+    };
+
+    this.makeMove = function makeMove (playerId, move) {
+        this.publicCards[move.rowNumber].push(move.card);
+        this.broadcast({
+            type: 'publicCards',
+            cards: this.publicCards
         });
     };
 }

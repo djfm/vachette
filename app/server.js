@@ -16,6 +16,9 @@ io.on('connection', function (socket) {
     socket.on('join', function (data) {
         game.find(data.gameId).addPlayer(data.playerId, socket);
     });
+    socket.on('move', function (data) {
+        game.find(data.gameId).makeMove(data.playerId, data.move);
+    });
 });
 
 app.post('/new-game', function (req, res) {

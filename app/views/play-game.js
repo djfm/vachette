@@ -110,13 +110,18 @@ var PlayGameView = View.extend({
     },
     onDropOverCardSlot: function onDropOverCardSlot(e) {
         var card = JSON.parse(e.dataTransfer.getData("card"));
-        var rowNumber = this.$(e.target).closest('.card-slot').data('row-number');
+        var slot = this.$(e.target).closest('.card-slot');
+        var rowNumber = slot.data('row-number');
         var that = this;
+
         this.checkIfMoveIsAllowed(card, rowNumber).then(function (yes) {
             if (yes) {
                 that.makeMove(card, rowNumber);
             }
         });
+
+        this.$('.card-slot.dragged-over').removeClass('dragged-over');
+        this._dragCounter = 0;
     },
     onOpenCardDragStart: function onOpenCardDragStart (e) {
         var card = this.$(e.target).find('.open-card').attr('data-card');
@@ -126,6 +131,15 @@ var PlayGameView = View.extend({
         return q(true);
     },
     makeMove: function makeMove (card, rowNumber) {
+        serverNotifications.socket.emit('move', {
+            gameId: this.gameId,
+            playerId: this.playerId,
+            move: {
+                card: card,
+                rowNumber: rowNumber
+            }
+        });
+
         this.publicCards[rowNumber].push(card);
         this.privateCards = _.reject(this.privateCards, function (c) {
             return c.number === card.number;
