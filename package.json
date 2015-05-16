@@ -4,7 +4,8 @@
   "description": "6 Nimmt / Take 5 game in the browser",
   "main": "index.js",
   "scripts": {
-    "test": "node_modules/.bin/mocha"
+    "test": "node_modules/.bin/mocha",
+    "start": "node index.js"
   },
   "author": "djfm<fm.de.jouvencel@gmail.com>",
   "license": "ISC",
