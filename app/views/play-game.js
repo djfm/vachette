@@ -65,6 +65,19 @@ var PlayGameView = View.extend({
     updateGameStatus: function updateGameStatus (gameData) {
         this.$('.playerCount').html(gameData.playerCount);
         this.$('.status').html(gameData.statusString);
+        this.$('.players').html(require('./templates/players.jade')({
+            players: _.map(gameData.players, function (player) {
+                player.vachettes = _.reduce(player.ate, function (total, card) {
+                    return total + card.vachettes;
+                }, 0);
+
+                if (player.id === this.playerId) {
+                    player.you = true;
+                }
+
+                return player;
+            }, this)
+        }));
     },
     setPrivateCards: function setPrivateCards (cards) {
         this.privateCards = cards;

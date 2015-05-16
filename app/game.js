@@ -37,6 +37,8 @@ function Game (id, io) {
     this.minPlayers = 2;
     this.players = {};
     this.playerCount = 0;
+    this.playerList = [];
+    this.whoseTurn = 0;
 
     this.statusString = 'Waiting for more players...';
     this.status = 'waiting';
@@ -59,17 +61,29 @@ function Game (id, io) {
         this.broadcast({
             type: 'status',
             playerCount: this.playerCount,
-            statusString: this.statusString
+            statusString: this.statusString,
+            players: _.map(this.playerList, function (player, index) {
+                player = _.pick(player, 'id', 'name', 'ate');
+                player.theirTurn = (index === this.whoseTurn);
+                return player;
+            }, this)
         });
     };
 
     this.addPlayer = function (playerId, socket) {
         if (!this.players[playerId] && this.status === 'waiting') {
             this.players[playerId] = {
-                socket: socket
+                socket: socket,
+                name: playerId,
+                id: playerId,
+                ate: []
             };
 
-            socket.on('disconnect', this.playerDisconnected.bind(this, playerId));
+            this.playerList.push(this.players[playerId]);
+
+            if (socket) {
+                socket.on('disconnect', this.playerDisconnected.bind(this, playerId));
+            }
 
             ++this.playerCount;
             this.sendStatus();
@@ -81,8 +95,15 @@ function Game (id, io) {
     };
 
     this.playerDisconnected = function (playerId) {
+
+        this.playerList = _.reject(this.playerList, function (player) {
+            return player.id === playerId;
+        });
+
         delete this.players[playerId];
         --this.playerCount;
+
+        this.whoseTurn = this.whoseTurn % this.playerList.length;
 
         if (this.playerCount < this.minPlayers) {
             this.status = 'waiting';
@@ -93,9 +114,9 @@ function Game (id, io) {
 
     this.startGame = function startGame () {
         this.status = 'playing';
+        this.whoseTurn = 0;
         this.statusString = 'Game on!';
         this.sendStatus();
-
         this.deal();
     };
 
@@ -135,7 +156,9 @@ function Game (id, io) {
     };
 
     this.makeMove = function makeMove (playerId, move) {
-        this.notifyMove(this.tryMove(playerId, move));
+        if (this.playerList[this.whoseTurn].id === playerId) {
+            this.notifyMove(this.tryMove(playerId, move));
+        }
     };
 
     this.getRowHighestNumber = function getRowHighestNumber (rowNumber) {
@@ -180,6 +203,8 @@ function Game (id, io) {
             player.cards = _.reject(player.cards, function (card) {
                 return card.number === move.card.number;
             });
+
+            this.whoseTurn = (this.whoseTurn + 1) % this.playerList.length;
         }
 
         return {
@@ -195,6 +220,7 @@ function Game (id, io) {
             type: 'publicCards',
             cards: this.publicCards
         });
+        this.sendStatus();
     };
 }
 
