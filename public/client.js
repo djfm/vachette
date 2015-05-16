@@ -88,11 +88,16 @@ var View    = require('./view'),
     _       = require('underscore')
 ;
 
+$.event.props.push('dataTransfer');
+
 var serverNotifications = require('../server-notifications');
 
 var PlayGameView = View.extend({
     template: require('./templates/play-game.jade'),
     events: {
+        'dragstart .hand-of-cards-container': 'onOpenCardDragStart',
+        'dragover .card-slot': 'onDragOverCardSlot',
+        'drop .card-slot': 'onDropOverCardSlot'
     },
     setup: function playGameViewSetup (gameId, playerId) {
         this.gameId = parseInt(gameId, 10);
@@ -145,16 +150,20 @@ var PlayGameView = View.extend({
     },
     setPrivateCards: function setPrivateCards (cards) {
         this.privateCards = cards;
+        this.drawPrivateCards();
+    },
+    drawPrivateCards: function drawPrivateCards () {
         this.$('.hand-of-cards').html(
             require('./templates/hand-of-cards.jade')({
                 cards: this.privateCards,
                 openCardTemplate: require('./templates/open-card.jade')
         }));
-
     },
     setPublicCards: function setPublicCards (cards) {
         this.publicCards = cards;
-
+        this.drawPublicCards();
+    },
+    drawPublicCards: function drawPublicCards () {
         var cardsForTemplate = _.map(this.publicCards, function (row) {
             return {
                 cards: row,
@@ -167,6 +176,35 @@ var PlayGameView = View.extend({
                 rows: cardsForTemplate,
                 openCardTemplate: require('./templates/open-card.jade')
         }));
+    },
+    onDragOverCardSlot: function onDragOverCardSlot (e) {
+        e.preventDefault();
+    },
+    onDropOverCardSlot: function onDropOverCardSlot(e) {
+        var card = JSON.parse(e.dataTransfer.getData("card"));
+        var rowNumber = this.$(e.target).closest('.card-slot').data('row-number');
+        var that = this;
+        this.checkIfMoveIsAllowed(card, rowNumber).then(function (yes) {
+            if (yes) {
+                that.makeMove(card, rowNumber);
+            }
+        });
+    },
+    onOpenCardDragStart: function onOpenCardDragStart (e) {
+        var card = this.$(e.target).find('.open-card').attr('data-card');
+        e.dataTransfer.setData('card', card);
+    },
+    checkIfMoveIsAllowed: function checkIfMoveIsAllowed (card, rowNumber) {
+        return q(true);
+    },
+    makeMove: function makeMove (card, rowNumber) {
+        this.publicCards[rowNumber].push(card);
+        this.privateCards = _.reject(this.privateCards, function (c) {
+            return c.number === card.number;
+        });
+
+        this.drawPublicCards();
+        this.drawPrivateCards();
     }
 });
 
@@ -189,7 +227,7 @@ buf.push("<div class=\"hand-of-cards-container\">");
     for (var $index = 0, $$l = $$obj.length; $index < $$l; $index++) {
       var card = $$obj[$index];
 
-buf.push("<div class=\"inline\">" + (((jade_interp = openCardTemplate({card: card})) == null ? '' : jade_interp)) + "</div>");
+buf.push("<div draggable=\"true\" class=\"inline\">" + (((jade_interp = openCardTemplate({card: card})) == null ? '' : jade_interp)) + "</div>");
     }
 
   } else {
@@ -197,7 +235,7 @@ buf.push("<div class=\"inline\">" + (((jade_interp = openCardTemplate({card: car
     for (var $index in $$obj) {
       $$l++;      var card = $$obj[$index];
 
-buf.push("<div class=\"inline\">" + (((jade_interp = openCardTemplate({card: card})) == null ? '' : jade_interp)) + "</div>");
+buf.push("<div draggable=\"true\" class=\"inline\">" + (((jade_interp = openCardTemplate({card: card})) == null ? '' : jade_interp)) + "</div>");
     }
 
   }
@@ -233,7 +271,7 @@ var buf = [];
 var jade_mixins = {};
 var jade_interp;
 ;var locals_for_with = (locals || {});(function (card) {
-buf.push("<div" + (jade.cls(['open-card',"vachettes_" + (card.vachettes) + ""], [null,true])) + "><table><tr><td><div class=\"small-number\">" + (jade.escape(null == (jade_interp = card.number) ? "" : jade_interp)) + "</div></td><td><div class=\"vachettes\">" + (jade.escape(null == (jade_interp = card.vachettes) ? "" : jade_interp)) + "</div></td><td><div class=\"small-number\">" + (jade.escape(null == (jade_interp = card.number) ? "" : jade_interp)) + "</div></td></tr><tr><td>&nbsp;</td><td><div class=\"big-number\">" + (jade.escape(null == (jade_interp = card.number) ? "" : jade_interp)) + "</div></td><td>&nbsp;</td></tr><tr><td><div class=\"small-number\">" + (jade.escape(null == (jade_interp = card.number) ? "" : jade_interp)) + "</div></td><td><div class=\"vachettes\">" + (jade.escape(null == (jade_interp = card.vachettes) ? "" : jade_interp)) + "</div></td><td><div class=\"small-number\">" + (jade.escape(null == (jade_interp = card.number) ? "" : jade_interp)) + "</div></td></tr></table></div>");}.call(this,"card" in locals_for_with?locals_for_with.card:typeof card!=="undefined"?card:undefined));;return buf.join("");
+buf.push("<div" + (jade.attr("data-card", card, true, false)) + (jade.cls(['open-card',"vachettes_" + (card.vachettes) + ""], [null,true])) + "><table><tr><td><div class=\"small-number\">" + (jade.escape(null == (jade_interp = card.number) ? "" : jade_interp)) + "</div></td><td><div class=\"vachettes\">" + (jade.escape(null == (jade_interp = card.vachettes) ? "" : jade_interp)) + "</div></td><td><div class=\"small-number\">" + (jade.escape(null == (jade_interp = card.number) ? "" : jade_interp)) + "</div></td></tr><tr><td colspan=\"3\"><div class=\"big-number\">" + (jade.escape(null == (jade_interp = card.number) ? "" : jade_interp)) + "</div></td></tr><tr><td><div class=\"small-number\">" + (jade.escape(null == (jade_interp = card.number) ? "" : jade_interp)) + "</div></td><td><div class=\"vachettes\">" + (jade.escape(null == (jade_interp = card.vachettes) ? "" : jade_interp)) + "</div></td><td><div class=\"small-number\">" + (jade.escape(null == (jade_interp = card.number) ? "" : jade_interp)) + "</div></td></tr></table></div>");}.call(this,"card" in locals_for_with?locals_for_with.card:typeof card!=="undefined"?card:undefined));;return buf.join("");
 };
 },{"jade/runtime":15}],9:[function(require,module,exports){
 var jade = require("jade/runtime");
@@ -258,8 +296,8 @@ var jade_interp;
   var $$obj = rows;
   if ('number' == typeof $$obj.length) {
 
-    for (var $index = 0, $$l = $$obj.length; $index < $$l; $index++) {
-      var row = $$obj[$index];
+    for (var rowNumber = 0, $$l = $$obj.length; rowNumber < $$l; rowNumber++) {
+      var row = $$obj[rowNumber];
 
 buf.push("<div>");
 // iterate row.cards
@@ -284,13 +322,13 @@ buf.push("<div class=\"inline\">" + (((jade_interp = openCardTemplate({card: car
   }
 }).call(this);
 
-buf.push("<div class=\"inline\"><div class=\"card-slot\"><div class=\"inside\"><div class=\"contents\">+</div></div></div></div></div>");
+buf.push("<div class=\"inline\"><div" + (jade.attr("data-row-number", rowNumber, true, false)) + " class=\"card-slot\"><div class=\"inside\"><div class=\"contents\">+</div></div></div></div></div>");
     }
 
   } else {
     var $$l = 0;
-    for (var $index in $$obj) {
-      $$l++;      var row = $$obj[$index];
+    for (var rowNumber in $$obj) {
+      $$l++;      var row = $$obj[rowNumber];
 
 buf.push("<div>");
 // iterate row.cards
@@ -315,7 +353,7 @@ buf.push("<div class=\"inline\">" + (((jade_interp = openCardTemplate({card: car
   }
 }).call(this);
 
-buf.push("<div class=\"inline\"><div class=\"card-slot\"><div class=\"inside\"><div class=\"contents\">+</div></div></div></div></div>");
+buf.push("<div class=\"inline\"><div" + (jade.attr("data-row-number", rowNumber, true, false)) + " class=\"card-slot\"><div class=\"inside\"><div class=\"contents\">+</div></div></div></div></div>");
     }
 
   }

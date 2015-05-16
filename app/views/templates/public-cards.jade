@@ -1,8 +1,8 @@
-each row in rows
+each row, rowNumber in rows
     div
         each card in row.cards
             .inline !{openCardTemplate({card: card})}
         .inline
-            .card-slot
+            .card-slot(data-row-number=rowNumber)
                 .inside
                     .contents +
