@@ -31,7 +31,7 @@ function Room (id, io) {
             });
             socket.on('disconnect', this.removePlayer.bind(this, playerId));
         }
-        this.tellPlayer(playerId, this.getPublicData());
+        this.broadcast(this.getPublicData());
         this.tellPlayer(playerId, this.getPrivateData(playerId));
     };
 
