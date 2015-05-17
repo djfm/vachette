@@ -99,15 +99,17 @@ function Room (id, io) {
 
         var players = this.game.getPlayersPublicInformation();
 
-        if (players.length > 0) {
+
+
+        if (gameOver && players.length > 0 && this.status !== 'over') {
             var winner = _.reduce(players, function (winner, player) {
                 return player.cowsEaten < winner.cowsEaten ? player : winner;
             }, players[0]);
 
-            if (gameOver) {
-                this.status = 'over';
-                this.statusString = winner.name + ' has won, congratulations!';
-            }
+            this.status = 'over';
+            this.statusString = winner.name + ' has won, congratulations!';
+            var rematchId = createGame(io).id;
+            this.statusString += ' <a href="#/play/' + rematchId + '">rematch?</a>';
         }
 
         return {
@@ -158,16 +160,18 @@ var nextRoomId = 0;
 
 var rooms = {};
 
+function createGame (io, id) {
+    if (id === undefined) {
+        id = nextRoomId++;
+    } else {
+        nextRoomId = Math.max(nextRoomId, id) + 1;
+    }
+    rooms[id] = new Room(id, io);
+    return rooms[id];
+}
+
 module.exports = {
-    create: function createGame (io, id) {
-        if (id === undefined) {
-            id = nextRoomId++;
-        } else {
-            nextRoomId = Math.max(nextRoomId, id) + 1;
-        }
-        rooms[id] = new Room(id, io);
-        return rooms[id];
-    },
+    create: createGame,
     find: function findGame (id) {
         return rooms[id];
     },

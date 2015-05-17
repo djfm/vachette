@@ -38,7 +38,7 @@ function Game () {
     this.whoseTurn = 0;
     this.smallestCard = 1;
     this.highestCard = 104;
-    this.cardsPerPlayer = 2;
+    this.cardsPerPlayer = 10;
     this.publicCardsCount = 4;
     this.maxRowLength = 5;
     this.publicCards = [];
