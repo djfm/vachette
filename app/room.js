@@ -27,21 +27,25 @@ function Room (id, io) {
     };
 
     this.addPlayer = function  addPlayer (playerId, socket) {
+        var canJoin = !this.game.hasPlayer(playerId);
 
         if (this.disconnectedPlayers[playerId]) {
-            // if there was a connection glitch and player just came back,
+            // If there was a connection glitch and player just came back,
             // then forget about removing them from the game.
             clearTimeout(this.disconnectedPlayers[playerId]);
             delete this.disconnectedPlayers[playerId];
+
+            // Taking the identity of someone who left is allowed.
+            canJoin = true;
         }
 
-        this.game.addPlayer(playerId);
-        this.game.players[playerId].socket = socket;
-
-        socket.on('disconnect', this.playerDisconnected.bind(this, playerId));
-
-        this.broadcast(this.getPublicData());
-        this.tellPlayer(playerId, this.getPrivateData(playerId));
+        if (canJoin) {
+            this.game.addPlayer(playerId);
+            this.game.players[playerId].socket = socket;
+            socket.on('disconnect', this.playerDisconnected.bind(this, playerId));
+            this.broadcast(this.getPublicData());
+            this.tellPlayer(playerId, this.getPrivateData(playerId));
+        }
     };
 
     this.playerDisconnected = function playerDisconnected (playerId) {

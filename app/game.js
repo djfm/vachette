@@ -90,6 +90,8 @@ function Game () {
 
         delete this.players[id];
 
+        this.whoseTurn = this.whoseTurn % this.playerList.length;
+
         return this;
     };
 

@@ -102,29 +102,37 @@ var PlayGameView = View.extend({
         'drop .card-slot': 'onDropOverCardSlot'
     },
     setup: function playGameViewSetup (gameId, playerId) {
-        this.gameId = parseInt(gameId, 10);
-
-        function setURL () {
-            this.url = '#/play/' + gameId + '/' + playerId;
-        }
-
         if (!playerId) {
             var that = this;
             return $.post('/new-player').then(function (data) {
-                that.playerId = playerId = data.id;
-                setURL.call(that);
-                history.replaceState(null, null, that.url);
+                return that.setup(gameId, data.id);
             });
         } else {
+            gameId =  parseInt(gameId, 10);
+
+            if (gameId === this.gameId && playerId !== this.playerId) {
+                this.leaveGame();
+            }
+
+            this.gameId = gameId;
             this.playerId = playerId;
-            setURL.call(this);
+            this.url = '#/play/' + this.gameId + '/' + this.playerId;
+            history.replaceState(null, null, this.url);
+
+            this.setupServerListeners();
+            this.joinGame();
+
             return q(null);
         }
     },
+    leaveGame: function leaveGame () {
+        serverNotifications.socket.emit('leave', {
+            gameId: this.gameId,
+            playerId: this.playerId
+        });
+    },
     afterRender: function playGameViewAfterRender () {
         $('.currentGame').html('<a href="' + this.url + '">current game</a>');
-        this.setupServerListeners();
-        this.joinGame();
     },
     setupServerListeners: function setupServerListeners () {
         var that = this;

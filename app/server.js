@@ -16,6 +16,12 @@ io.on('connection', function (socket) {
     socket.on('join', function (data) {
         room.findOrCreate(data.gameId, io).addPlayer(data.playerId, socket);
     });
+    socket.on('leave', function (data) {
+        var currentRoom = room.find(data.gameId);
+        if (currentRoom) {
+            currentRoom.removePlayer(data.playerId);
+        }
+    });
     socket.on('move', function (data) {
         room.find(data.gameId).makeMove(data.playerId, data.move);
     });
