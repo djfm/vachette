@@ -43,7 +43,7 @@ function Game () {
     this.maxRowLength = 5;
     this.publicCards = [];
     this.deck = [];
-    this.status = 'waiting';
+    this.playing = false;
 
     this.prepareCards = function prepareCards () {
         this.deck = generateDeckOfCards(this.smallestCard, this.highestCard);
@@ -101,6 +101,13 @@ function Game () {
 
     this.computeMove = function computeMove (playerId, move) {
         var player = this.players[playerId];
+
+        if (!this.playing) {
+            return {
+                ok: false,
+                message: 'Game has not started yet!'
+            };
+        }
 
         if (this.playerList[this.whoseTurn] !== player) {
             return {

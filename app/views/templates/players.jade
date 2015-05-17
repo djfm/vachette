@@ -1,8 +1,11 @@
 .players-container
+    p Players:
     each player in players
         .player(class=player.theirTurn ? 'their-turn' : '')
-            span.name= player.name
-            if player.cowsEaten === 1
-                span (1 cow eaten)
-            else if player.cowsEaten > 1
-                span (#{player.cowsEaten} cows eaten)
+            table
+                tr
+                    td.name= player.name
+                    if player.cowsEaten === 1
+                        td (1 cow eaten)
+                    else if player.cowsEaten > 1
+                        td (#{player.cowsEaten} cows eaten)

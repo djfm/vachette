@@ -75,15 +75,23 @@ body
         cursor pointer
 
 .player
+    height 32px
+    vertical-align bottom
     display inline-block
+    border 1px solid #eee
+    margin-right 5px
     &.their-turn
-        font-size 1.5em
+        .name
+            font-size 1.5em
     .name
         font-weight bold
         color #666
-    span
-        &:not(first-child)
-            margin-left 5px
+    table
+        height 100%
+    td
+        vertical-align middle
+        padding-left 3px
+        padding-right 3px
 .splash
     position absolute
     background-color rgba(255,0,0,0.5)

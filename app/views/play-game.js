@@ -15,7 +15,8 @@ var PlayGameView = View.extend({
         'dragover .card-slot': 'onDragOverCardSlot',
         'dragenter .card-slot': 'onDragEnterCardSlot',
         'dragleave .card-slot': 'onDragLeaveCardSlot',
-        'drop .card-slot': 'onDropOverCardSlot'
+        'drop .card-slot': 'onDropOverCardSlot',
+        'click .start-button': 'onStartButtonClicked'
     },
     setup: function playGameViewSetup (gameId, playerId) {
         playerId = playerId || this.playerId;
@@ -71,10 +72,27 @@ var PlayGameView = View.extend({
     reflectPublicData: function reflectPublicData (data) {
         this.drawPublicCards(data.publicCards);
         this.drawPlayers(data.players);
-        this.$('.my-turn').css(
-            'visibility',
-            data.nextPlayerToPlayId === this.playerId ? 'visible' : 'hidden'
-        );
+
+        if (data.status === 'playing') {
+            this.$('.my-turn').css(
+                'visibility',
+                data.nextPlayerToPlayId === this.playerId ? 'visible' : 'hidden'
+            );
+        }
+        
+        this.$('.status').html(data.statusString);
+
+        var startButtonState = 'start';
+
+        if (data.status === 'playing') {
+            startButtonState = null;
+        } else if (data.status === 'confirming' && data.started[this.playerId]) {
+            startButtonState = 'clicked';
+        }
+
+        this.$('.start-button-area').html(require('./templates/start-button.jade')({
+            state: startButtonState
+        }));
     },
     reflectPrivateData: function reflectPrivateData (data) {
         this.drawPrivateCards(data.privateCards);
@@ -165,6 +183,12 @@ var PlayGameView = View.extend({
                 card: card,
                 rowNumber: rowNumber
             }
+        });
+    },
+    onStartButtonClicked: function onStartButtonClicked () {
+        serverNotifications.socket.emit('start', {
+            gameId: this.gameId,
+            playerId: this.playerId
         });
     }
 });

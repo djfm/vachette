@@ -9,6 +9,8 @@ function Room (id, io) {
     this.game = new Game();
 
     this.disconnectedPlayers = {};
+    this.status = 'waiting';
+    this.statusString = 'Waiting... hit the start button when ready!';
 
     function sendMessage (socket, data) {
         socket.emit('game ' + this.id, _.defaults(data, {
@@ -85,11 +87,19 @@ function Room (id, io) {
         var nextPlayerToPlay = this.game.getNextPlayerToPlay(),
             nextPlayerToPlayId = nextPlayerToPlay ? nextPlayerToPlay.id : undefined;
 
+        var started = {};
+        _.each(this.game.players, function (player) {
+            started[player.id] = player.started;
+        });
+
         return {
             type: 'publicData',
             publicCards: this.game.publicCards,
             players: this.game.getPlayersPublicInformation(),
-            nextPlayerToPlayId: nextPlayerToPlayId
+            nextPlayerToPlayId: nextPlayerToPlayId,
+            status: this.status,
+            statusString: this.statusString,
+            started: started
         };
     };
 
@@ -98,6 +108,31 @@ function Room (id, io) {
             type: 'privateData',
             privateCards: this.game.players[playerId].cards
         };
+    };
+
+    this.intentToStart = function intentToStart (playerId) {
+        this.game.players[playerId].started = true;
+
+        var started = _.countBy(this.game.players, function (player) {
+            return player.started ? 'yes' : 'no';
+        });
+
+        var missing = (started.no || 0) - (started.yes || 0) + 1;
+
+        if ( missing <= 0 ) {
+            this.startGame();
+        } else {
+            this.status = 'confirming';
+            this.statusString = 'Waiting for ' + missing + ' more player(s) to accept before starting...';
+            this.broadcast(this.getPublicData());
+        }
+    };
+
+    this.startGame = function startGame () {
+        this.status = 'playing';
+        this.statusString = 'Game on!!';
+        this.game.playing = true;
+        this.broadcast(this.getPublicData());
     };
 }
 

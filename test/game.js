@@ -1,13 +1,19 @@
-/* global describe, it */
+/* global describe, it, beforeEach */
 var chai = require('chai');
 chai.should();
 
 var Game = require('../app/game');
 
 describe('The Game', function () {
-    it('should allow legal moves that do not make the player take cards', function () {
-        var game = new Game();
 
+    var game;
+
+    beforeEach(function () {
+        game = new Game();
+        game.playing = true;
+    });
+
+    it('should allow legal moves that do not make the player take cards', function () {
         game.publicCards = [
             [{number: 15}],
             [{number: 2}],
@@ -38,8 +44,6 @@ describe('The Game', function () {
     });
 
     it('should forbid dropping a card on a card that is too high', function () {
-        var game = new Game();
-
         game.publicCards = [
             [{number: 15}],
             [{number: 2}],
@@ -58,8 +62,6 @@ describe('The Game', function () {
     });
 
     it('should forbid dropping a card on a card that is too low', function () {
-        var game = new Game();
-
         game.publicCards = [
             [{number: 15}],
             [{number: 2}],
@@ -78,8 +80,6 @@ describe('The Game', function () {
     });
 
     it('should allow taking a row by dropping a card that is lower than any other top level card', function () {
-        var game = new Game();
-
         game.publicCards = [
             [{number: 15}],
             [{number: 2}],
@@ -108,8 +108,6 @@ describe('The Game', function () {
     });
 
     it('should make the player take the row when he drops the last card', function () {
-        var game = new Game();
-
         game.publicCards = [
             [{number: 15}],
             [{number: 2}],
@@ -138,8 +136,6 @@ describe('The Game', function () {
     });
 
     it('should forbid a player from playing a card he doesn\'t have', function () {
-        var game = new Game();
-
         game.publicCards = [
             [{number: 15}],
             [{number: 2}],
@@ -158,8 +154,6 @@ describe('The Game', function () {
     });
 
     it('should forbid a player from playing when it is not their turn', function () {
-        var game = new Game();
-
         game.addPlayer('alice');
 
         game.addPlayer('bob');
@@ -171,8 +165,6 @@ describe('The Game', function () {
     });
 
     it('should retrieve the public info on players', function () {
-        var game = new Game();
-
         game.addPlayer('alice', {
             cards: [{number: 1}],
             ate: []
@@ -193,5 +185,17 @@ describe('The Game', function () {
                 cowsEaten: 6
             }
         ]);
+    });
+
+    it('should not allow a move if game is not started', function () {
+        game.playing = false;
+        game.addPlayer('alice', {
+            cards: [{number: 1}],
+            ate: []
+        });
+        game.computeMove('alice').should.deep.equal({
+            ok: false,
+            message: 'Game has not started yet!'
+        });
     });
 });

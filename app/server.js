@@ -25,6 +25,9 @@ io.on('connection', function (socket) {
     socket.on('move', function (data) {
         room.find(data.gameId).makeMove(data.playerId, data.move);
     });
+    socket.on('start', function (data) {
+        room.find(data.gameId).intentToStart(data.playerId);
+    });
 });
 
 app.post('/new-game', function (req, res) {
