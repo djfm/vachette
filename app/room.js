@@ -30,7 +30,7 @@ function Room (id, io) {
 
     this.addPlayer = function  addPlayer (playerId, socket) {
         var hasJoined = this.game.hasPlayer(playerId);
-        var canJoin = !hasJoined && this.status !== 'playing';
+        var canJoin = !hasJoined && this.status !== 'playing' && this.status !== 'over';
 
         if (this.disconnectedPlayers[playerId]) {
             // If there was a connection glitch and player just came back,
@@ -88,14 +88,32 @@ function Room (id, io) {
             nextPlayerToPlayId = nextPlayerToPlay ? nextPlayerToPlay.id : undefined;
 
         var started = {};
+        var gameOver = true;
+
         _.each(this.game.players, function (player) {
             started[player.id] = player.started;
+            if (player.cards.length > 0) {
+                gameOver = false;
+            }
         });
+
+        var players = this.game.getPlayersPublicInformation();
+
+        if (players.length > 0) {
+            var winner = _.reduce(players, function (winner, player) {
+                return player.cowsEaten < winner.cowsEaten ? player : winner;
+            }, players[0]);
+
+            if (gameOver) {
+                this.status = 'over';
+                this.statusString = winner.name + ' has won, congratulations!';
+            }
+        }
 
         return {
             type: 'publicData',
             publicCards: this.game.publicCards,
-            players: this.game.getPlayersPublicInformation(),
+            players: players,
             nextPlayerToPlayId: nextPlayerToPlayId,
             status: this.status,
             statusString: this.statusString,

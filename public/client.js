@@ -157,21 +157,23 @@ var PlayGameView = View.extend({
         this.drawPublicCards(data.publicCards);
         this.drawPlayers(data.players);
 
-        if (data.status === 'playing') {
-            this.$('.my-turn').css(
-                'visibility',
-                data.nextPlayerToPlayId === this.playerId ? 'visible' : 'hidden'
-            );
-        }
-        
+        this.$('.my-turn').css(
+            'visibility',
+            (data.nextPlayerToPlayId === this.playerId && data.status === 'playing') ? 'visible' : 'hidden'
+        );
+
         this.$('.status').html(data.statusString);
 
-        var startButtonState = 'start';
+        var startButtonState = null;
 
-        if (data.status === 'playing') {
-            startButtonState = null;
-        } else if (data.status === 'confirming' && data.started[this.playerId]) {
-            startButtonState = 'clicked';
+        if (data.status === 'confirming') {
+            if (data.started[this.playerId]) {
+                startButtonState = 'clicked';
+            } else {
+                startButtonState = 'start';
+            }
+        } else if (data.status === 'waiting') {
+            startButtonState = 'start';
         }
 
         this.$('.start-button-area').html(require('./templates/start-button.jade')({
@@ -490,11 +492,11 @@ var jade_interp;
 ;var locals_for_with = (locals || {});(function (state) {
 if ( state === 'start')
 {
-buf.push("<button type=\"button\" class=\"btn btn-success btn-lg start-button\">Start Game!</button>");
+buf.push("<button type=\"button\" class=\"btn btn-success btn-lg start-button\">Start Game</button>");
 }
 else if ( state === 'clicked')
 {
-buf.push("<button disabled=\"true\" type=\"button\" class=\"btn btn-success btn-lg start-button\">Ready.</button>");
+buf.push("<button disabled=\"true\" type=\"button\" class=\"btn btn-success btn-lg start-button\">Ready</button>");
 }}.call(this,"state" in locals_for_with?locals_for_with.state:typeof state!=="undefined"?state:undefined));;return buf.join("");
 };
 },{"jade/runtime":17}],13:[function(require,module,exports){

@@ -73,21 +73,23 @@ var PlayGameView = View.extend({
         this.drawPublicCards(data.publicCards);
         this.drawPlayers(data.players);
 
-        if (data.status === 'playing') {
-            this.$('.my-turn').css(
-                'visibility',
-                data.nextPlayerToPlayId === this.playerId ? 'visible' : 'hidden'
-            );
-        }
-        
+        this.$('.my-turn').css(
+            'visibility',
+            (data.nextPlayerToPlayId === this.playerId && data.status === 'playing') ? 'visible' : 'hidden'
+        );
+
         this.$('.status').html(data.statusString);
 
-        var startButtonState = 'start';
+        var startButtonState = null;
 
-        if (data.status === 'playing') {
-            startButtonState = null;
-        } else if (data.status === 'confirming' && data.started[this.playerId]) {
-            startButtonState = 'clicked';
+        if (data.status === 'confirming') {
+            if (data.started[this.playerId]) {
+                startButtonState = 'clicked';
+            } else {
+                startButtonState = 'start';
+            }
+        } else if (data.status === 'waiting') {
+            startButtonState = 'start';
         }
 
         this.$('.start-button-area').html(require('./templates/start-button.jade')({
