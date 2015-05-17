@@ -27,7 +27,8 @@ function Room (id, io) {
     };
 
     this.addPlayer = function  addPlayer (playerId, socket) {
-        var canJoin = !this.game.hasPlayer(playerId);
+        var hasJoined = this.game.hasPlayer(playerId);
+        var canJoin = !hasJoined;
 
         if (this.disconnectedPlayers[playerId]) {
             // If there was a connection glitch and player just came back,
@@ -43,6 +44,10 @@ function Room (id, io) {
             this.game.addPlayer(playerId);
             this.game.players[playerId].socket = socket;
             socket.on('disconnect', this.playerDisconnected.bind(this, playerId));
+            hasJoined = true;
+        }
+
+        if (hasJoined) {
             this.broadcast(this.getPublicData());
             this.tellPlayer(playerId, this.getPrivateData(playerId));
         }
@@ -76,11 +81,15 @@ function Room (id, io) {
     };
 
     this.getPublicData = function getPublicData () {
+
+        var nextPlayerToPlay = this.game.getNextPlayerToPlay(),
+            nextPlayerToPlayId = nextPlayerToPlay ? nextPlayerToPlay.id : undefined;
+
         return {
             type: 'publicData',
             publicCards: this.game.publicCards,
             players: this.game.getPlayersPublicInformation(),
-            nextPlayerToPlayId: this.game.getNextPlayerToPlay().id
+            nextPlayerToPlayId: nextPlayerToPlayId
         };
     };
 

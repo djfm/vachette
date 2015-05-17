@@ -18,6 +18,8 @@ var PlayGameView = View.extend({
         'drop .card-slot': 'onDropOverCardSlot'
     },
     setup: function playGameViewSetup (gameId, playerId) {
+        playerId = playerId || this.playerId;
+
         if (!playerId) {
             var that = this;
             return $.post('/new-player').then(function (data) {
@@ -35,9 +37,6 @@ var PlayGameView = View.extend({
             this.url = '#/play/' + this.gameId + '/' + this.playerId;
             history.replaceState(null, null, this.url);
 
-            this.setupServerListeners();
-            this.joinGame();
-
             return q(null);
         }
     },
@@ -49,6 +48,8 @@ var PlayGameView = View.extend({
     },
     afterRender: function playGameViewAfterRender () {
         $('.currentGame').html('<a href="' + this.url + '">current game</a>');
+        this.setupServerListeners();
+        this.joinGame();
     },
     setupServerListeners: function setupServerListeners () {
         var that = this;

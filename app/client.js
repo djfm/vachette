@@ -29,12 +29,12 @@ var Router = Backbone.Router.extend({
         if (beforeRender) {
             setup = beforeRender(this.views[name]);
         } else {
-            setup = q(null);
+            setup = null;
         }
 
         var router = this;
 
-        return setup.then(function () {
+        return q(setup).then(function () {
             return router.views[name].render();
         });
     },
