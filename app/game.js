@@ -170,6 +170,14 @@ function Game () {
         };
     };
 
+    this.reflectMove = function reflectMove (playerId, computedMove) {
+        var player = this.players[playerId];
+        player.cards = computedMove.privateCards;
+        player.ate = player.ate.concat(computedMove.take);
+        this.publicCards = computedMove.publicCards;
+        this.whoseTurn = (this.whoseTurn + 1) % this.playerList.length;
+    };
+
     this.getPlayersPublicInformation = function getPlayersPublicInformation () {
         return _.map(this.playerList, function (privatePlayer, index) {
             var publicPlayer = _.pick(privatePlayer, 'name');
@@ -181,6 +189,10 @@ function Game () {
 
             return publicPlayer;
         }, this);
+    };
+
+    this.getNextPlayerToPlay = function getNextPlayerToPlay () {
+        return this.playerList[this.whoseTurn];
     };
 
     this.prepareCards();

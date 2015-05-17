@@ -44,61 +44,37 @@ var PlayGameView = View.extend({
     },
     setupServerListeners: function setupServerListeners () {
         var that = this;
-        serverNotifications.socket.on('game ' + this.gameId, function (data) {
+        serverNotifications.socket.on('game ' + that.gameId, function (data) {
             if (that.gameId === data.gameId) {
-                if (data.type === 'status') {
-                    that.updateGameStatus(data);
-                } else if (data.type === 'privateCards') {
-                    that.setPrivateCards(data.cards);
-                } else if (data.type === 'publicCards') {
-                    that.setPublicCards(data.cards);
-                } else if (data.type === 'splash') {
-                    that.splash(data.message);
-                } else if (data.type === 'ok move') {
-                    that.consecutiveErrorCount = 0;
-                }
+                that.handleMessage(data);
             }
         });
+    },
+    handleMessage: function handleMessage (data) {
+        if (data.type === 'publicData') {
+            this.reflectPublicData(data);
+        } else if (data.type === 'privateData') {
+            this.reflectPrivateData(data);
+        } else if (data.type === 'mistake') {
+            this.splash(data.message);
+        }
+    },
+    reflectPublicData: function reflectPublicData (data) {
+        this.drawPublicCards(data.publicCards);
+        this.drawPlayers(data.players);
+        this.$('.my-turn').css(
+            'visibility',
+            data.nextPlayerToPlayId === this.playerId ? 'visible' : 'hidden'
+        );
+    },
+    reflectPrivateData: function reflectPrivateData (data) {
+        this.drawPrivateCards(data.privateCards);
     },
     joinGame: function joinGame () {
         serverNotifications.socket.emit('join', {
             gameId: this.gameId,
             playerId: this.playerId
         });
-    },
-    updateGameStatus: function updateGameStatus (gameData) {
-        var playerCountString;
-
-        if (gameData.playerCount > 1) {
-            playerCountString = 'There are ' + gameData.playerCount + ' players connected.';
-        } else {
-            playerCountString = 'You\'re the only connected player...';
-        }
-
-        var myTurn = false;
-
-        var players = _.map(gameData.players, function (player) {
-            player.vachettes = _.reduce(player.ate, function (total, card) {
-                return total + card.vachettes;
-            }, 0);
-
-            if (player.id === this.playerId) {
-                player.you = true;
-                if (player.theirTurn) {
-                    myTurn = true;
-                }
-            }
-
-            return player;
-        }, this);
-
-        this.$('.my-turn').css('visibility', myTurn ? 'visible' : 'hidden');
-
-        this.$('.playerCount').html(playerCountString);
-        this.$('.status').html(gameData.statusString);
-        this.$('.players').html(require('./templates/players.jade')({
-            players: players
-        }));
     },
     splash: function splash (message) {
 
@@ -120,26 +96,17 @@ var PlayGameView = View.extend({
             elem.css('visibility', 'hidden').css('opacity', 1);
         });
     },
-    setPrivateCards: function setPrivateCards (cards) {
-        this.privateCards = cards;
-        this.drawPrivateCards();
-    },
-    drawPrivateCards: function drawPrivateCards () {
+    drawPrivateCards: function drawPrivateCards (cards) {
         this.$('.hand-of-cards').html(
             require('./templates/hand-of-cards.jade')({
-                cards: this.privateCards,
+                cards: cards,
                 openCardTemplate: require('./templates/open-card.jade')
         }));
     },
-    setPublicCards: function setPublicCards (cards) {
-        this.publicCards = cards;
-        this.drawPublicCards();
-    },
-    drawPublicCards: function drawPublicCards () {
-        var cardsForTemplate = _.map(this.publicCards, function (row) {
+    drawPublicCards: function drawPublicCards (cards) {
+        var cardsForTemplate = _.map(cards, function (row) {
             return {
                 cards: row,
-                full: row.length >= 5
             };
         });
 
@@ -147,6 +114,11 @@ var PlayGameView = View.extend({
             require('./templates/public-cards.jade')({
                 rows: cardsForTemplate,
                 openCardTemplate: require('./templates/open-card.jade')
+        }));
+    },
+    drawPlayers: function drawPlayers (players) {
+        this.$('.players').html(require('./templates/players.jade')({
+            players: players
         }));
     },
     onDragEnterCardSlot: function onDragEnterCardSlot (e) {

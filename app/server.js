@@ -4,7 +4,7 @@ var express     = require('express'),
     uid         = require('uid')
 ;
 
-var game        = require('./game');
+var room    = require('./room');
 
 var app     = express();
 var server  = http.Server(app);
@@ -14,16 +14,16 @@ app.use(express.static('public'));
 
 io.on('connection', function (socket) {
     socket.on('join', function (data) {
-        game.findOrCreate(data.gameId, io).addPlayer(data.playerId, socket);
+        room.findOrCreate(data.gameId, io).addPlayer(data.playerId, socket);
     });
     socket.on('move', function (data) {
-        game.find(data.gameId).makeMove(data.playerId, data.move);
+        room.find(data.gameId).makeMove(data.playerId, data.move);
     });
 });
 
 app.post('/new-game', function (req, res) {
     res.send({
-        id: game.create(io).id
+        id: room.create(io).id
     });
 });
 

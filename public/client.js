@@ -128,61 +128,37 @@ var PlayGameView = View.extend({
     },
     setupServerListeners: function setupServerListeners () {
         var that = this;
-        serverNotifications.socket.on('game ' + this.gameId, function (data) {
+        serverNotifications.socket.on('game ' + that.gameId, function (data) {
             if (that.gameId === data.gameId) {
-                if (data.type === 'status') {
-                    that.updateGameStatus(data);
-                } else if (data.type === 'privateCards') {
-                    that.setPrivateCards(data.cards);
-                } else if (data.type === 'publicCards') {
-                    that.setPublicCards(data.cards);
-                } else if (data.type === 'splash') {
-                    that.splash(data.message);
-                } else if (data.type === 'ok move') {
-                    that.consecutiveErrorCount = 0;
-                }
+                that.handleMessage(data);
             }
         });
+    },
+    handleMessage: function handleMessage (data) {
+        if (data.type === 'publicData') {
+            this.reflectPublicData(data);
+        } else if (data.type === 'privateData') {
+            this.reflectPrivateData(data);
+        } else if (data.type === 'mistake') {
+            this.splash(data.message);
+        }
+    },
+    reflectPublicData: function reflectPublicData (data) {
+        this.drawPublicCards(data.publicCards);
+        this.drawPlayers(data.players);
+        this.$('.my-turn').css(
+            'visibility',
+            data.nextPlayerToPlayId === this.playerId ? 'visible' : 'hidden'
+        );
+    },
+    reflectPrivateData: function reflectPrivateData (data) {
+        this.drawPrivateCards(data.privateCards);
     },
     joinGame: function joinGame () {
         serverNotifications.socket.emit('join', {
             gameId: this.gameId,
             playerId: this.playerId
         });
-    },
-    updateGameStatus: function updateGameStatus (gameData) {
-        var playerCountString;
-
-        if (gameData.playerCount > 1) {
-            playerCountString = 'There are ' + gameData.playerCount + ' players connected.';
-        } else {
-            playerCountString = 'You\'re the only connected player...';
-        }
-
-        var myTurn = false;
-
-        var players = _.map(gameData.players, function (player) {
-            player.vachettes = _.reduce(player.ate, function (total, card) {
-                return total + card.vachettes;
-            }, 0);
-
-            if (player.id === this.playerId) {
-                player.you = true;
-                if (player.theirTurn) {
-                    myTurn = true;
-                }
-            }
-
-            return player;
-        }, this);
-
-        this.$('.my-turn').css('visibility', myTurn ? 'visible' : 'hidden');
-
-        this.$('.playerCount').html(playerCountString);
-        this.$('.status').html(gameData.statusString);
-        this.$('.players').html(require('./templates/players.jade')({
-            players: players
-        }));
     },
     splash: function splash (message) {
 
@@ -204,26 +180,17 @@ var PlayGameView = View.extend({
             elem.css('visibility', 'hidden').css('opacity', 1);
         });
     },
-    setPrivateCards: function setPrivateCards (cards) {
-        this.privateCards = cards;
-        this.drawPrivateCards();
-    },
-    drawPrivateCards: function drawPrivateCards () {
+    drawPrivateCards: function drawPrivateCards (cards) {
         this.$('.hand-of-cards').html(
             require('./templates/hand-of-cards.jade')({
-                cards: this.privateCards,
+                cards: cards,
                 openCardTemplate: require('./templates/open-card.jade')
         }));
     },
-    setPublicCards: function setPublicCards (cards) {
-        this.publicCards = cards;
-        this.drawPublicCards();
-    },
-    drawPublicCards: function drawPublicCards () {
-        var cardsForTemplate = _.map(this.publicCards, function (row) {
+    drawPublicCards: function drawPublicCards (cards) {
+        var cardsForTemplate = _.map(cards, function (row) {
             return {
                 cards: row,
-                full: row.length >= 5
             };
         });
 
@@ -231,6 +198,11 @@ var PlayGameView = View.extend({
             require('./templates/public-cards.jade')({
                 rows: cardsForTemplate,
                 openCardTemplate: require('./templates/open-card.jade')
+        }));
+    },
+    drawPlayers: function drawPlayers (players) {
+        this.$('.players').html(require('./templates/players.jade')({
+            players: players
         }));
     },
     onDragEnterCardSlot: function onDragEnterCardSlot (e) {
@@ -354,6 +326,7 @@ var buf = [];
 var jade_mixins = {};
 var jade_interp;
 ;var locals_for_with = (locals || {});(function (players, undefined) {
+buf.push("<div class=\"players-container\">");
 // iterate players
 ;(function(){
   var $$obj = players;
@@ -362,16 +335,7 @@ var jade_interp;
     for (var $index = 0, $$l = $$obj.length; $index < $$l; $index++) {
       var player = $$obj[$index];
 
-buf.push("<div class=\"player\">");
-if ( player.theirTurn)
-{
-buf.push("<span class=\"their-turn\">>></span>");
-}
-if ( player.you)
-{
-buf.push("<span class=\"you\">[you]</span>");
-}
-buf.push("<span class=\"name\">" + (jade.escape(null == (jade_interp = player.name) ? "" : jade_interp)) + "</span>");
+buf.push("<div" + (jade.cls(['player',player.theirTurn ? 'their-turn' : ''], [null,true])) + "><span class=\"name\">" + (jade.escape(null == (jade_interp = player.name) ? "" : jade_interp)) + "</span>");
 if ( player.vachettes === 1)
 {
 buf.push("<span>(1 cow eaten)</span>");
@@ -388,16 +352,7 @@ buf.push("</div>");
     for (var $index in $$obj) {
       $$l++;      var player = $$obj[$index];
 
-buf.push("<div class=\"player\">");
-if ( player.theirTurn)
-{
-buf.push("<span class=\"their-turn\">>></span>");
-}
-if ( player.you)
-{
-buf.push("<span class=\"you\">[you]</span>");
-}
-buf.push("<span class=\"name\">" + (jade.escape(null == (jade_interp = player.name) ? "" : jade_interp)) + "</span>");
+buf.push("<div" + (jade.cls(['player',player.theirTurn ? 'their-turn' : ''], [null,true])) + "><span class=\"name\">" + (jade.escape(null == (jade_interp = player.name) ? "" : jade_interp)) + "</span>");
 if ( player.vachettes === 1)
 {
 buf.push("<span>(1 cow eaten)</span>");
@@ -411,7 +366,8 @@ buf.push("</div>");
 
   }
 }).call(this);
-}.call(this,"players" in locals_for_with?locals_for_with.players:typeof players!=="undefined"?players:undefined,"undefined" in locals_for_with?locals_for_with.undefined:typeof undefined!=="undefined"?undefined:undefined));;return buf.join("");
+
+buf.push("</div>");}.call(this,"players" in locals_for_with?locals_for_with.players:typeof players!=="undefined"?players:undefined,"undefined" in locals_for_with?locals_for_with.undefined:typeof undefined!=="undefined"?undefined:undefined));;return buf.join("");
 };
 },{"jade/runtime":16}],11:[function(require,module,exports){
 var jade = require("jade/runtime");
