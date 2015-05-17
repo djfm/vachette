@@ -170,6 +170,19 @@ function Game () {
         };
     };
 
+    this.getPlayersPublicInformation = function getPlayersPublicInformation () {
+        return _.map(this.playerList, function (privatePlayer, index) {
+            var publicPlayer = _.pick(privatePlayer, 'name');
+
+            publicPlayer.theirTurn = (index === this.whoseTurn);
+            publicPlayer.cowsEaten = _.reduce(privatePlayer.ate, function (eaten, card) {
+                return eaten + card.vachettes;
+            }, 0);
+
+            return publicPlayer;
+        }, this);
+    };
+
     this.prepareCards();
     this.publicCards = this.dealPublicCards();
 }

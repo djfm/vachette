@@ -169,4 +169,29 @@ describe('The Game', function () {
             message: 'Not your turn!'
         });
     });
+
+    it('should retrieve the public info on players', function () {
+        var game = new Game();
+
+        game.addPlayer('alice', {
+            cards: [{number: 1}],
+            ate: []
+        });
+        game.addPlayer('bob', {
+            ate: [{number: 1, vachettes: 5}, {number: 2, vachettes: 1}]
+        });
+
+        game.getPlayersPublicInformation().should.deep.equal([
+            {
+                name: 'alice',
+                theirTurn: true,
+                cowsEaten: 0
+            },
+            {
+                name: 'bob',
+                theirTurn: false,
+                cowsEaten: 6
+            }
+        ]);
+    });
 });
