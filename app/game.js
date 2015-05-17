@@ -59,7 +59,9 @@ function Game () {
     };
 
     this.dealPrivateCards = function dealPrivateCards () {
-        return this.deck.splice(-this.cardsPerPlayer, this.cardsPerPlayer);
+        return this.deck.splice(-this.cardsPerPlayer, this.cardsPerPlayer).sort(function (a, b) {
+            return a.number - b.number;
+        });
     };
 
     this.addPlayer = function addPlayer (id, options) {
