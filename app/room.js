@@ -30,7 +30,7 @@ function Room (id, io) {
 
     this.addPlayer = function  addPlayer (playerId, socket) {
         var hasJoined = this.game.hasPlayer(playerId);
-        var canJoin = !hasJoined;
+        var canJoin = !hasJoined && this.status !== 'playing';
 
         if (this.disconnectedPlayers[playerId]) {
             // If there was a connection glitch and player just came back,
