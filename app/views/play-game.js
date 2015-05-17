@@ -82,6 +82,7 @@ var PlayGameView = View.extend({
 
         if (this.consecutiveErrorCount >= 3) {
             message = 'Are you dumb?';
+            this.consecutiveErrorCount = 0;
         }
 
         this.$('.splash-message').html(message);
