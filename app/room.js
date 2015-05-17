@@ -66,6 +66,10 @@ function Room (id, io) {
         delete this.disconnectedPlayers[playerId];
         this.game.removePlayer(playerId);
         this.broadcast(this.getPublicData());
+
+        if (this.game.playerList.length === 0) {
+            delete rooms[this.id];
+        }
     };
 
     this.makeMove = function makeMove (playerId, move) {
@@ -99,8 +103,6 @@ function Room (id, io) {
 
         var players = this.game.getPlayersPublicInformation();
 
-
-
         if (gameOver && players.length > 0 && this.status !== 'over') {
             var winner = _.reduce(players, function (winner, player) {
                 return player.cowsEaten < winner.cowsEaten ? player : winner;
@@ -108,7 +110,7 @@ function Room (id, io) {
 
             this.status = 'over';
             this.statusString = winner.name + ' has won, congratulations!';
-            var rematchId = createGame(io).id;
+            var rematchId = nextRoomId++;
             this.statusString += ' <a href="#/play/' + rematchId + '">rematch?</a>';
         }
 
