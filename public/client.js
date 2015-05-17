@@ -336,13 +336,13 @@ buf.push("<div class=\"players-container\">");
       var player = $$obj[$index];
 
 buf.push("<div" + (jade.cls(['player',player.theirTurn ? 'their-turn' : ''], [null,true])) + "><span class=\"name\">" + (jade.escape(null == (jade_interp = player.name) ? "" : jade_interp)) + "</span>");
-if ( player.vachettes === 1)
+if ( player.cowsEaten === 1)
 {
 buf.push("<span>(1 cow eaten)</span>");
 }
-else if ( player.vachettes > 1)
+else if ( player.cowsEaten > 1)
 {
-buf.push("<span>(" + (jade.escape((jade_interp = player.vachettes) == null ? '' : jade_interp)) + " cows eaten)</span>");
+buf.push("<span>(" + (jade.escape((jade_interp = player.cowsEaten) == null ? '' : jade_interp)) + " cows eaten)</span>");
 }
 buf.push("</div>");
     }
@@ -353,13 +353,13 @@ buf.push("</div>");
       $$l++;      var player = $$obj[$index];
 
 buf.push("<div" + (jade.cls(['player',player.theirTurn ? 'their-turn' : ''], [null,true])) + "><span class=\"name\">" + (jade.escape(null == (jade_interp = player.name) ? "" : jade_interp)) + "</span>");
-if ( player.vachettes === 1)
+if ( player.cowsEaten === 1)
 {
 buf.push("<span>(1 cow eaten)</span>");
 }
-else if ( player.vachettes > 1)
+else if ( player.cowsEaten > 1)
 {
-buf.push("<span>(" + (jade.escape((jade_interp = player.vachettes) == null ? '' : jade_interp)) + " cows eaten)</span>");
+buf.push("<span>(" + (jade.escape((jade_interp = player.cowsEaten) == null ? '' : jade_interp)) + " cows eaten)</span>");
 }
 buf.push("</div>");
     }

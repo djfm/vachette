@@ -2,7 +2,7 @@
     each player in players
         .player(class=player.theirTurn ? 'their-turn' : '')
             span.name= player.name
-            if player.vachettes === 1
+            if player.cowsEaten === 1
                 span (1 cow eaten)
-            else if player.vachettes > 1
-                span (#{player.vachettes} cows eaten)
+            else if player.cowsEaten > 1
+                span (#{player.cowsEaten} cows eaten)
