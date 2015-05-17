@@ -317,7 +317,7 @@ var buf = [];
 var jade_mixins = {};
 var jade_interp;
 
-buf.push("<div class=\"container\"><span class=\"playerCount\"></span><div class=\"players\"></div><br/><p class=\"status\"></p><p style=\"visibility: hidden\" class=\"my-turn\"><span class=\"label label-success\">Your Turn</span></p><hr/><div class=\"public-area\"><table class=\"splash\"><tr><td class=\"splash-message\"></td></tr></table><div class=\"public-cards\"><span class=\"label label-warning\">Sorry, but it seems this game is already full.</span></div></div><hr/><div class=\"hand-of-cards\"></div></div>");;return buf.join("");
+buf.push("<div class=\"container\"><span class=\"playerCount\"></span><div class=\"players\"></div><br/><p class=\"status\"></p><p style=\"visibility: hidden\" class=\"my-turn\"><span class=\"label label-success\">Your Turn</span></p><hr/><div class=\"public-area\"><table class=\"splash\"><tr><td class=\"splash-message\"></td></tr></table><div class=\"public-cards\"></div></div><hr/><div class=\"hand-of-cards\"></div></div>");;return buf.join("");
 };
 },{"jade/runtime":16}],10:[function(require,module,exports){
 var jade = require("jade/runtime");
