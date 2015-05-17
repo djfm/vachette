@@ -8,6 +8,8 @@ function Room (id, io) {
 
     this.game = new Game();
 
+    this.disconnectedPlayers = {};
+
     function sendMessage (socket, data) {
         socket.emit('game ' + this.id, _.defaults(data, {
             gameId: this.id
@@ -25,18 +27,34 @@ function Room (id, io) {
     };
 
     this.addPlayer = function  addPlayer (playerId, socket) {
-        if (!this.game.hasPlayer(playerId)) {
-            this.game.addPlayer(playerId, {
-                socket: socket
-            });
-            socket.on('disconnect', this.removePlayer.bind(this, playerId));
+
+        if (this.disconnectedPlayers[playerId]) {
+            // if there was a connection glitch and player just came back,
+            // then forget about removing them from the game.
+            clearTimeout(this.disconnectedPlayers[playerId]);
+            delete this.disconnectedPlayers[playerId];
         }
+
+        this.game.addPlayer(playerId);
+        this.game.players[playerId].socket = socket;
+
+        socket.on('disconnect', this.playerDisconnected.bind(this, playerId));
+
         this.broadcast(this.getPublicData());
         this.tellPlayer(playerId, this.getPrivateData(playerId));
     };
 
+    this.playerDisconnected = function playerDisconnected (playerId) {
+        this.disconnectedPlayers[playerId] = setTimeout(
+            this.removePlayer.bind(this, playerId),
+            5000
+        );
+    };
+
     this.removePlayer = function removePlayer (playerId) {
+        delete this.disconnectedPlayers[playerId];
         this.game.removePlayer(playerId);
+        this.broadcast(this.getPublicData());
     };
 
     this.makeMove = function makeMove (playerId, move) {
