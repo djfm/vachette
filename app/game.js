@@ -154,7 +154,7 @@ function Game () {
             } else if (playerDelta < 0 && rowDelta > 0) {
                 return {
                     ok: false,
-                    message: 'Your card is too small to take this row.'
+                    message: 'Your card is too big to take this row.'
                 };
             }
         }
