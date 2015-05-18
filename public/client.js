@@ -189,7 +189,9 @@ var PlayGameView = View.extend({
             playerId: this.playerId
         });
     },
-    splash: function splash (message) {
+    splash: function splash (message, type) {
+
+        type = type || 'error';
 
         this.consecutiveErrorCount = (this.consecutiveErrorCount || 0) + 1;
 
