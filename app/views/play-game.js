@@ -69,14 +69,37 @@ var PlayGameView = View.extend({
             this.splash(data.message);
         }
     },
+    animateTitle: function animateTitle (message) {
+        if (!message) {
+            if (this._originialTitle) {
+                document.title = this._originialTitle;
+                window.clearInterval(this._titleAnimator);
+            }
+        } else {
+            this._originialTitle = document.title;
+            var sequence = [message, document.title];
+            var pos = 0;
+            document.title = message;
+            this._titleAnimator = window.setInterval(function () {
+                document.title = sequence[pos];
+                pos = (pos + 1) % sequence.length;
+            }, 1000);
+        }
+    },
     reflectPublicData: function reflectPublicData (data) {
         this.drawPublicCards(data.publicCards);
         this.drawPlayers(data.players);
 
-        this.$('.my-turn').css(
-            'visibility',
-            (data.nextPlayerToPlayId === this.playerId && data.status === 'playing') ? 'visible' : 'hidden'
-        );
+        var myTurn = (data.nextPlayerToPlayId === this.playerId && data.status === 'playing');
+
+        if (myTurn) {
+            this.$('.my-turn').css('visibility', 'visible');
+            this.animateTitle('(*) Vachette');
+        } else {
+            this.$('.my-turn').css('visibility', 'hidden');
+            this.animateTitle(false);
+        }
+
 
         this.$('.status').html(data.statusString);
 
