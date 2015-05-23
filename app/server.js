@@ -28,6 +28,12 @@ io.on('connection', function (socket) {
     socket.on('start', function (data) {
         room.find(data.gameId).intentToStart(data.playerId);
     });
+    socket.on('rename', function (data) {
+        room.find(data.gameId).renamePlayer(data.playerId, data.username);
+    });
+    socket.on('chat message', function (data) {
+        room.find(data.gameId).chatMessage(data.playerId, data.message);
+    });
 });
 
 app.post('/new-game', function (req, res) {

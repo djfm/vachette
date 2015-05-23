@@ -16,7 +16,9 @@ var PlayGameView = View.extend({
         'dragenter .card-slot': 'onDragEnterCardSlot',
         'dragleave .card-slot': 'onDragLeaveCardSlot',
         'drop .card-slot': 'onDropOverCardSlot',
-        'click .start-button': 'onStartButtonClicked'
+        'click .start-button': 'onStartButtonClicked',
+        'change #your-name-input': 'onUserNameChanged',
+        'change #message-input': 'onMessageInputChanged'
     },
     setup: function playGameViewSetup (gameId, playerId) {
         playerId = playerId || this.playerId;
@@ -41,6 +43,24 @@ var PlayGameView = View.extend({
             return q(null);
         }
     },
+    onUserNameChanged: function onUserNameChanged (e) {
+        var username = this.$(e.target).val();
+        serverNotifications.socket.emit('rename', {
+            gameId: this.gameId,
+            playerId: this.playerId,
+            username: username
+        });
+    },
+    onMessageInputChanged: function onMessageInputChanged (e) {
+        var $target = this.$(e.target);
+        var message = $target.val();
+        $target.val('');
+        serverNotifications.socket.emit('chat message', {
+            gameId: this.gameId,
+            playerId: this.playerId,
+            message: message
+        });
+    },
     leaveGame: function leaveGame () {
         serverNotifications.socket.emit('leave', {
             gameId: this.gameId,
@@ -49,6 +69,7 @@ var PlayGameView = View.extend({
     },
     afterRender: function playGameViewAfterRender () {
         $('.currentGame').html('<a href="' + this.url + '">current game</a>');
+        this.renderChat();
         this.setupServerListeners();
         this.joinGame();
     },
@@ -60,6 +81,16 @@ var PlayGameView = View.extend({
             }
         });
     },
+    renderChat: function renderChat () {
+        this.$('.chat-container').html(require('./templates/chat.jade')({
+            username: this.playerId
+        }));
+    },
+    renderChatMessage: function renderChatMessage (data) {
+        var $messages = this.$('.chat .messages');
+        $messages.append(require('./templates/chat-message.jade')(data));
+        $messages.scrollTop($messages.height());
+    },
     handleMessage: function handleMessage (data) {
         if (data.type === 'publicData') {
             this.reflectPublicData(data);
@@ -67,6 +98,8 @@ var PlayGameView = View.extend({
             this.reflectPrivateData(data);
         } else if (data.type === 'mistake') {
             this.splash(data.message);
+        }  else if (data.type === 'chat message') {
+            this.renderChatMessage(data);
         }
     },
     animateTitle: function animateTitle (message) {
@@ -143,7 +176,7 @@ var PlayGameView = View.extend({
 
         var elem = this.$('.splash')
         .addClass('fade')
-        .width(this.$('.container').width())
+        .width(this.$('.public-area').width())
         .height(this.$('.public-area').height())
         .css('visibility', 'visible')
         .css('opacity', 0)

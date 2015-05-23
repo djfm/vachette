@@ -17,6 +17,40 @@ body
     display inline-block
     vertical-align bottom
 
+.play-game
+    .chat-container
+        border-left 1px solid #eee
+        padding-left 15px
+        padding-right 15px
+        @media(min-width: 1200px)
+            position absolute
+        height 100%
+        width 100%
+        .chat
+            height 100%
+            width 100%
+            .messages
+                overflow hidden
+                height 400px
+                @media(min-width: 1200px)
+                    position absolute
+                    width 100%
+                    height calc(100% - 100px)
+                .chat-message
+                    margin-bottom 5px
+                    .username
+                        font-weight bold
+                    .before-message
+                        color orange
+                        text-decoration italic
+                    .time
+                        color #ccc
+            .controls
+                width 100%
+                @media(min-width: 1200px)
+                    position absolute
+                    bottom 0
+
 .card-slot,.open-card
     width 70px
     height 100px

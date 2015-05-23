@@ -55,6 +55,19 @@ function Room (id, io) {
         }
     };
 
+    this.renamePlayer = function renamePlayer (playerId, newName) {
+        this.game.players[playerId].name = newName;
+        this.broadcast(this.getPublicData());
+    };
+
+    this.chatMessage = function chatMessage (playerId, message) {
+        this.broadcast({
+            type: 'chat message',
+            username: this.game.players[playerId].name,
+            message: message
+        });
+    };
+
     this.playerDisconnected = function playerDisconnected (playerId) {
         this.disconnectedPlayers[playerId] = setTimeout(
             this.removePlayer.bind(this, playerId),

@@ -1,4 +1,4 @@
-.container
+.container-fluid
     .row
         .col-lg-6
             .players
@@ -11,14 +11,15 @@
     p.my-turn(style="visibility: hidden")
         span.label.label-success Your Turn
     
-    hr
-    
-    .public-area
-        table.splash
-            tr
-                td.splash-message
-        .public-cards
-
-    hr
-
-    .hand-of-cards
+    .play-game
+        .flex-row
+            .flex-col.flex-half
+                .public-area
+                    table.splash
+                        tr
+                            td.splash-message
+                    .public-cards
+                    hr
+                .hand-of-cards
+            .flex-col.flex-half
+                .chat-container
