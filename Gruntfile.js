@@ -14,12 +14,18 @@ module.exports = function (grunt) {
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
         browserify: {
+            options: {
+                browserifyOptions: {
+                    debug: true
+                }
+            },
             dist: {
                 files: {
                     'public/client.js': javascriptsToCompile,
                 },
                 options: {
-                    transform: ['jadeify']
+                    transform: ['jadeify'],
+                    plugin: [['minifyify', {map: 'client.map.json', output: 'public/client.map.json'}]],
                 }
             }
         },
@@ -33,7 +39,8 @@ module.exports = function (grunt) {
         cssmin: {
             target: {
                 files: {
-                    'public/vendor.css': ['node_modules/bootstrap/dist/css/bootstrap.css']
+                    'public/vendor.css': ['node_modules/bootstrap/dist/css/bootstrap.css'],
+                    'public/client.css': ['public/client.css']
                 }
             }
         },
