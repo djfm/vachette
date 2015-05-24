@@ -2,16 +2,33 @@ body
     margin-top 50px
     padding 15px
     font-family Sans-Serif
+    background-image url('/grass.jpg')
 
 .new-game-form
+    box-shadow 10px 15px 15px
+    background-color #fff
+    opacity 0.9
+    padding 80px
     width 50%
     margin 0 auto
     margin-top 40px
     p
         font-size: 1.5em
 
+.big-container
+    box-shadow 10px 15px 15px
+    width 100%
+    background-color #fff
+    opacity 0.9
+    padding 15px
+    @media(min-width: 1700px)
+        width 1700px
+        margin 0 auto
+
 .big-fixed-height
     height 600px
+    @media(max-width: 1700px)
+        height 700px
 
 #main-nav
     padding-right 15px
