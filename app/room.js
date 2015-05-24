@@ -100,7 +100,8 @@ function Room (id, io) {
                     type: 'chat message',
                     username: 'King Of Cows',
                     to: playerName,
-                    message: 'Eat some cow!'
+                    message: 'Eat some cow!',
+                    cssClass: 'oops'
                 });
             }
         } else {
@@ -115,7 +116,8 @@ function Room (id, io) {
                 type: 'chat message',
                 username: 'King Of Cows',
                 to: playerName,
-                message: message
+                message: message,
+                cssClass: 'oops'
             });
         }
     };

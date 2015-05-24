@@ -346,13 +346,13 @@ module.exports = function template(locals) {
 var buf = [];
 var jade_mixins = {};
 var jade_interp;
-;var locals_for_with = (locals || {});(function (Date, message, to, username) {
-buf.push("<div class=\"chat-message\"><span class=\"username\">" + (jade.escape(null == (jade_interp = username) ? "" : jade_interp)) + "</span>");
+;var locals_for_with = (locals || {});(function (Date, cssClass, message, to, username) {
+buf.push("<div" + (jade.cls(['chat-message',cssClass], [null,true])) + "><span class=\"username\">" + (jade.escape(null == (jade_interp = username) ? "" : jade_interp)) + "</span>");
 if ( to)
 {
 buf.push("<span>&nbsp;</span><span class=\"to\">=></span><span>&nbsp;</span><span class=\"username\">" + (jade.escape(null == (jade_interp = to) ? "" : jade_interp)) + "</span>");
 }
-buf.push("<span>&nbsp;</span><span class=\"time\">" + (jade.escape(null == (jade_interp = (new Date).toLocaleString()) ? "" : jade_interp)) + "</span><br/><span class=\"before-message\">#</span><span>&nbsp;</span><span class=\"message\">" + (jade.escape(null == (jade_interp = message) ? "" : jade_interp)) + "</span></div>");}.call(this,"Date" in locals_for_with?locals_for_with.Date:typeof Date!=="undefined"?Date:undefined,"message" in locals_for_with?locals_for_with.message:typeof message!=="undefined"?message:undefined,"to" in locals_for_with?locals_for_with.to:typeof to!=="undefined"?to:undefined,"username" in locals_for_with?locals_for_with.username:typeof username!=="undefined"?username:undefined));;return buf.join("");
+buf.push("<span>&nbsp;</span><span class=\"time\">" + (jade.escape(null == (jade_interp = (new Date).toLocaleString()) ? "" : jade_interp)) + "</span><br/><span class=\"before-message\">#</span><span>&nbsp;</span><span class=\"message\">" + (jade.escape(null == (jade_interp = message) ? "" : jade_interp)) + "</span></div>");}.call(this,"Date" in locals_for_with?locals_for_with.Date:typeof Date!=="undefined"?Date:undefined,"cssClass" in locals_for_with?locals_for_with.cssClass:typeof cssClass!=="undefined"?cssClass:undefined,"message" in locals_for_with?locals_for_with.message:typeof message!=="undefined"?message:undefined,"to" in locals_for_with?locals_for_with.to:typeof to!=="undefined"?to:undefined,"username" in locals_for_with?locals_for_with.username:typeof username!=="undefined"?username:undefined));;return buf.join("");
 };
 },{"jade/runtime":19}],6:[function(require,module,exports){
 var jade = require("jade/runtime");
