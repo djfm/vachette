@@ -173,7 +173,7 @@ var PlayGameView = View.extend({
     renderChatMessage: function renderChatMessage (data) {
         var $messages = this.$('.chat .messages');
         $messages.append(require('./templates/chat-message.jade')(data));
-        $messages.scrollTop($messages.height());
+        $messages.scrollTop($messages.get(0).scrollHeight);
     },
     handleMessage: function handleMessage (data) {
         if (data.type === 'publicData') {
@@ -357,7 +357,7 @@ var buf = [];
 var jade_mixins = {};
 var jade_interp;
 ;var locals_for_with = (locals || {});(function (username) {
-buf.push("<div class=\"chat\"><div class=\"messages\"></div><div class=\"controls\"><div class=\"row\"><div class=\"col-xs-8\"><div class=\"form\"><div class=\"form-group\"><label for=\"message-input\">Say stuffz to the ppl:</label><input id=\"message-input\" type=\"text\" class=\"form-control\"/></div></div></div><div class=\"col-xs-4\"><div class=\"form\"><div class=\"form-group\"><label for=\"your-name-input\">Your name:</label><input id=\"your-name-input\" type=\"text\"" + (jade.attr("value", username, true, false)) + " class=\"form-control\"/></div></div></div></div></div></div>");}.call(this,"username" in locals_for_with?locals_for_with.username:typeof username!=="undefined"?username:undefined));;return buf.join("");
+buf.push("<div class=\"chat\"><div class=\"messages\"></div><br/><div class=\"controls\"><div class=\"row\"><div class=\"col-xs-8\"><div class=\"form\"><div class=\"form-group\"><label for=\"message-input\">Say stuffz to the ppl:</label><input id=\"message-input\" type=\"text\" class=\"form-control\"/></div></div></div><div class=\"col-xs-4\"><div class=\"form\"><div class=\"form-group\"><label for=\"your-name-input\">Your name:</label><input id=\"your-name-input\" type=\"text\"" + (jade.attr("value", username, true, false)) + " class=\"form-control\"/></div></div></div></div></div></div>");}.call(this,"username" in locals_for_with?locals_for_with.username:typeof username!=="undefined"?username:undefined));;return buf.join("");
 };
 },{"jade/runtime":19}],7:[function(require,module,exports){
 var jade = require("jade/runtime");
@@ -430,7 +430,7 @@ var buf = [];
 var jade_mixins = {};
 var jade_interp;
 
-buf.push("<div class=\"container-fluid\"><div class=\"row\"><div class=\"col-lg-6\"><div class=\"players\"></div></div><div class=\"col-lg-6\"><p class=\"status\"></p><div class=\"start-button-area\"></div></div></div><br/><p style=\"visibility: hidden\" class=\"my-turn\"><span class=\"label label-success\">Your Turn</span></p><div class=\"play-game\"><div class=\"flex-row\"><div class=\"flex-col flex-half\"><div class=\"public-area\"><table class=\"splash\"><tr><td class=\"splash-message\"></td></tr></table><div class=\"public-cards\"></div><hr/></div><div class=\"hand-of-cards\"></div></div><div class=\"flex-col flex-half\"><div class=\"chat-container\"></div></div></div></div></div>");;return buf.join("");
+buf.push("<div class=\"container-fluid\"><div class=\"row\"><div class=\"col-md-6\"><div class=\"players\"></div></div><div class=\"col-md-6\"><p class=\"status\"></p><div class=\"start-button-area\"></div></div></div><br/><p style=\"visibility: hidden\" class=\"my-turn\"><span class=\"label label-success\">Your Turn</span></p><div class=\"play-game\"><div class=\"row\"><div class=\"col-md-6 big-fixed-height\"><div class=\"public-area\"><table class=\"splash\"><tr><td class=\"splash-message\"></td></tr></table><div class=\"public-cards\"></div><hr/></div><div class=\"hand-of-cards\"></div></div><div class=\"col-md-6 big-fixed-height\"><div class=\"chat-container\"></div></div></div></div></div>");;return buf.join("");
 };
 },{"jade/runtime":19}],12:[function(require,module,exports){
 var jade = require("jade/runtime");

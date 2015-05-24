@@ -89,7 +89,7 @@ var PlayGameView = View.extend({
     renderChatMessage: function renderChatMessage (data) {
         var $messages = this.$('.chat .messages');
         $messages.append(require('./templates/chat-message.jade')(data));
-        $messages.scrollTop($messages.height());
+        $messages.scrollTop($messages.get(0).scrollHeight);
     },
     handleMessage: function handleMessage (data) {
         if (data.type === 'publicData') {
