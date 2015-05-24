@@ -92,9 +92,18 @@ function Room (id, io) {
             this.broadcast(this.getPublicData());
             this.tellPlayer(playerId, this.getPrivateData(playerId));
         } else {
+            var message = result.message || 'Nope!';
+
             this.tellPlayer(playerId, {
                 type: 'mistake',
-                message: result.message || 'Nope!'
+                message: message
+            });
+
+            this.broadcast({
+                type: 'chat message',
+                username: 'King Of Cows',
+                to: this.game.players[playerId].name,
+                message: message
             });
         }
     };

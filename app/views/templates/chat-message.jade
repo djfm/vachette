@@ -1,5 +1,10 @@
 .chat-message
     span.username= username
+    if to
+        span &nbsp;
+        span.to =>
+        span &nbsp;
+        span.username= to
     span &nbsp;
     span.time= (new Date).toLocaleString()
     br
