@@ -217,8 +217,16 @@ var PlayGameView = View.extend({
             this.animateTitle(false);
         }
 
+        var statusString = data.statusString;
 
-        this.$('.status').html(data.statusString);
+        if (data.status === 'waiting' || data.status === 'confirming') {
+            var joinURL = location.protocol + '//' + location.host + '/#/play/' + this.gameId;
+            statusString += ' Invite ppl with this URL: ' +
+                            '<input type="text" size="' + joinURL.length +
+                            '" disabled="true" value="' + joinURL + '">';
+        }
+
+        this.$('.status').html(statusString);
 
         var startButtonState = null;
 
