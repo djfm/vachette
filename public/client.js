@@ -129,11 +129,15 @@ var PlayGameView = View.extend({
     },
     onUserNameChanged: function onUserNameChanged (e) {
         var username = this.$(e.target).val();
-        serverNotifications.socket.emit('rename', {
-            gameId: this.gameId,
-            playerId: this.playerId,
-            username: username
-        });
+
+        if (username) {
+            this.username = username;
+            serverNotifications.socket.emit('rename', {
+                gameId: this.gameId,
+                playerId: this.playerId,
+                username: this.username
+            });
+        }
     },
     onMessageInputChanged: function onMessageInputChanged (e) {
         var $target = this.$(e.target);
@@ -167,7 +171,7 @@ var PlayGameView = View.extend({
     },
     renderChat: function renderChat () {
         this.$('.chat-container').html(require('./templates/chat.jade')({
-            username: this.playerId
+            username: this.username || this.playerId
         }));
     },
     renderChatMessage: function renderChatMessage (data) {
@@ -250,7 +254,8 @@ var PlayGameView = View.extend({
     joinGame: function joinGame () {
         serverNotifications.socket.emit('join', {
             gameId: this.gameId,
-            playerId: this.playerId
+            playerId: this.playerId,
+            username: this.username || this.playerId
         });
     },
     splash: function splash (message, type) {

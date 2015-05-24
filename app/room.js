@@ -28,7 +28,7 @@ function Room (id, io) {
         return this;
     };
 
-    this.addPlayer = function  addPlayer (playerId, socket) {
+    this.addPlayer = function  addPlayer (playerId, socket, joinData) {
         var hasJoined = this.game.hasPlayer(playerId);
         var canJoin = !hasJoined && this.status !== 'playing' && this.status !== 'over';
 
@@ -45,6 +45,7 @@ function Room (id, io) {
         if (canJoin) {
             this.game.addPlayer(playerId);
             this.game.players[playerId].socket = socket;
+            this.game.players[playerId].name = joinData.username;
             socket.on('disconnect', this.playerDisconnected.bind(this, playerId));
             hasJoined = true;
         }

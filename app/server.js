@@ -14,7 +14,7 @@ app.use(express.static('public'));
 
 io.on('connection', function (socket) {
     socket.on('join', function (data) {
-        room.findOrCreate(data.gameId, io).addPlayer(data.playerId, socket);
+        room.findOrCreate(data.gameId, io).addPlayer(data.playerId, socket, data);
     });
     socket.on('leave', function (data) {
         var currentRoom = room.find(data.gameId);
