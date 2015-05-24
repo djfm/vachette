@@ -430,7 +430,7 @@ var buf = [];
 var jade_mixins = {};
 var jade_interp;
 
-buf.push("<div class=\"container-fluid\"><div class=\"row\"><div class=\"col-md-6\"><div class=\"players\"></div></div><div class=\"col-md-6\"><p class=\"status\"></p><div class=\"start-button-area\"></div></div></div><br/><p style=\"visibility: hidden\" class=\"my-turn\"><span class=\"label label-success\">Your Turn</span></p><div class=\"play-game\"><div class=\"row\"><div class=\"col-md-6 big-fixed-height\"><div class=\"public-area\"><table class=\"splash\"><tr><td class=\"splash-message\"></td></tr></table><div class=\"public-cards\"></div><hr/></div><div class=\"hand-of-cards\"></div></div><div class=\"col-md-6 big-fixed-height\"><div class=\"chat-container\"></div></div></div></div></div>");;return buf.join("");
+buf.push("<div class=\"big-container\"><div class=\"row\"><div class=\"col-md-6\"><div class=\"players\"></div></div><div class=\"col-md-6\"><p class=\"status\"></p><div class=\"start-button-area\"></div></div></div><br/><p style=\"visibility: hidden\" class=\"my-turn\"><span class=\"label label-success\">Your Turn</span></p><div class=\"play-game\"><div class=\"row\"><div class=\"col-md-6 big-fixed-height\"><div class=\"public-area\"><table class=\"splash\"><tr><td class=\"splash-message\"></td></tr></table><div class=\"public-cards\"></div><hr/></div><div class=\"hand-of-cards\"></div></div><div class=\"col-md-6 big-fixed-height\"><div class=\"chat-container\"></div></div></div></div></div>");;return buf.join("");
 };
 },{"jade/runtime":19}],12:[function(require,module,exports){
 var jade = require("jade/runtime");
