@@ -18,6 +18,21 @@
                     table.splash
                         tr
                             td.splash-message
+                    .rules
+                        p Here are our rules:
+                        ul
+                            li At each turn you play a card of your choice.
+                            li A move is valid if either of the following conditions is met:
+                            ul
+                                li Your card is bigger than the card to its left and there is no bigger card to the right of which you could put your own card.
+                                li Your card is smaller than any of the right-most cards on the game.
+                            li When you put the 6th card of the row, you take the row.
+                            li When you put a card on a row that is smaller than the last card of the row, you take the row.
+                            li The goal is to take as few cards as possible.
+                        p Cards have a different numbers of points on them. The bigger the worse. Avoid them.
+                        p The King-Of-Cows will insult you when you make a mistake, so you'll get it right eventually.
+                        p This message will self-destruct once the game has started.
+                             
                     .public-cards
                     hr
                 .hand-of-cards

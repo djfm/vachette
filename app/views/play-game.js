@@ -167,6 +167,8 @@ var PlayGameView = View.extend({
             }
         } else if (data.status === 'waiting') {
             startButtonState = 'start';
+        } else if (data.status === 'playing') {
+            this.$('.rules').hide();
         }
 
         this.$('.start-button-area').html(require('./templates/start-button.jade')({
