@@ -37,6 +37,9 @@ module.exports = function (grunt) {
             }
         },
         cssmin: {
+            options: {
+                sourceMap: true
+            },
             target: {
                 files: {
                     'public/vendor.css': ['node_modules/bootstrap/dist/css/bootstrap.css'],
