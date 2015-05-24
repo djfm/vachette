@@ -86,11 +86,23 @@ function Room (id, io) {
     };
 
     this.makeMove = function makeMove (playerId, move) {
+
+        var playerName = this.game.players[playerId].name;
+
         var result = this.game.computeMove(playerId, move);
         if (result.ok) {
             this.game.reflectMove(playerId, result);
             this.broadcast(this.getPublicData());
             this.tellPlayer(playerId, this.getPrivateData(playerId));
+
+            if (result.take.length > 0) {
+                this.broadcast({
+                    type: 'chat message',
+                    username: 'King Of Cows',
+                    to: playerName,
+                    message: 'Eat some cow!'
+                });
+            }
         } else {
             var message = result.message || 'Nope!';
 
@@ -102,7 +114,7 @@ function Room (id, io) {
             this.broadcast({
                 type: 'chat message',
                 username: 'King Of Cows',
-                to: this.game.players[playerId].name,
+                to: playerName,
                 message: message
             });
         }
