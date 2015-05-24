@@ -98,7 +98,7 @@ function Room (id, io) {
             if (result.take.length > 0) {
                 this.broadcast({
                     type: 'chat message',
-                    username: 'King Of Cows',
+                    username: 'King-Of-Cows',
                     to: playerName,
                     message: 'Eat some cow!',
                     cssClass: 'oops'
@@ -114,7 +114,7 @@ function Room (id, io) {
 
             this.broadcast({
                 type: 'chat message',
-                username: 'King Of Cows',
+                username: 'King-Of-Cows',
                 to: playerName,
                 message: message,
                 cssClass: 'oops'
