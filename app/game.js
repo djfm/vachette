@@ -162,11 +162,14 @@ function Game () {
         var publicCards = _.clone(this.publicCards);
         var take = [];
 
+        var takeRow = null;
+
         if (playerDelta > 0 && this.publicCards[move.rowNumber].length < this.maxRowLength) {
             publicCards[move.rowNumber].push(move.card);
         } else {
             take = this.publicCards[move.rowNumber];
             publicCards[move.rowNumber] = [move.card];
+            takeRow = move.rowNumber;
         }
 
         var privateCards = _.reject(player.cards, function (card) {
@@ -176,6 +179,7 @@ function Game () {
         return {
             ok: true,
             take: take,
+            takeRow: takeRow,
             publicCards: publicCards,
             privateCards: privateCards
         };

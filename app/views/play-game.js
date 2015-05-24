@@ -124,7 +124,16 @@ var PlayGameView = View.extend({
         }
     },
     reflectPublicData: function reflectPublicData (data) {
-        this.drawPublicCards(data.publicCards);
+        var drawPublicCards = this.drawPublicCards.bind(this, data.publicCards);
+
+        if (data.animatePublicCards) {
+            this.$('.public-card-container[data-row-number="' + data.animatePublicCards.takeRow + '"]')
+                .css('opacity', 0)
+                .bind('transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd', drawPublicCards);
+        } else {
+            drawPublicCards();
+        }
+
         this.drawPlayers(data.players);
 
         var myTurn = (data.nextPlayerToPlayId === this.playerId && data.status === 'playing');

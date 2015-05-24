@@ -93,7 +93,16 @@ function Room (id, io) {
         var result = this.game.computeMove(playerId, move);
         if (result.ok) {
             this.game.reflectMove(playerId, result);
-            this.broadcast(this.getPublicData());
+
+            var publicData = this.getPublicData();
+
+            if (result.takeRow !== null) {
+                publicData.animatePublicCards = {
+                    takeRow: result.takeRow
+                };
+            }
+
+            this.broadcast(publicData);
             this.tellPlayer(playerId, this.getPrivateData(playerId));
 
             if (result.take.length > 0) {

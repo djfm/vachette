@@ -1,3 +1,24 @@
+fade(t)
+    opacity 1
+    transition: opacity t ease-in-out;
+    -moz-transition: opacity t ease-in-out;
+    -webkit-transition: opacity t ease-in-out;
+
+.fade_1
+    fade(0.75s)
+
+.fade_2
+    fade(0.60s)
+
+.fade_3
+    fade(0.45s)
+
+.fade_4
+    fade(0.25s)
+
+.fade_5
+    fade(0.1s)
+
 body
     margin-top 70px
     padding 15px
@@ -142,6 +163,7 @@ body
         vertical-align middle
         padding-left 3px
         padding-right 3px
+
 .splash
     position absolute
     background-color rgba(255,0,0,0.5)
@@ -150,7 +172,4 @@ body
         text-align center
         font-size 3em
     &.fade
-        opacity 1
-        transition: opacity 0.75s ease-in-out;
-        -moz-transition: opacity 0.75s ease-in-out;
-        -webkit-transition: opacity 0.75s ease-in-out;
+        fade(0.75s)

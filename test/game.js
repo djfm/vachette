@@ -33,6 +33,7 @@ describe('The Game', function () {
         }).should.deep.equal({
             ok: true,
             take: [],
+            takeRow: null,
             publicCards: [
                 [{number: 15}],
                 [{number: 2}],
@@ -97,6 +98,7 @@ describe('The Game', function () {
         }).should.deep.equal({
             ok: true,
             take: [{number: 3}],
+            takeRow: 2,
             publicCards: [
                 [{number: 15}],
                 [{number: 2}],
@@ -125,6 +127,7 @@ describe('The Game', function () {
         }).should.deep.equal({
             ok: true,
             take: [{number: 4}, {number: 5}, {number: 6}, {number: 7}, {number: 8}],
+            takeRow: 3,
             publicCards: [
                 [{number: 15}],
                 [{number: 2}],

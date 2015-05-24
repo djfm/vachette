@@ -1,7 +1,7 @@
 each row, rowNumber in rows
     div
-        each card in row.cards
-            .inline !{openCardTemplate({card: card})}
+        each card, i in row.cards
+            .inline.public-card-container(class="fade_"+(i+1) data-row-number=rowNumber) !{openCardTemplate({card: card})}
         .inline
             .card-slot(data-row-number=rowNumber)
                 .inside
